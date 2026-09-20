@@ -9,14 +9,14 @@ import { EmailLog } from '../models/EmailLog.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { ROLES, DEFAULT_VERTICALS } from '../config/constants.js';
 import { ENV } from '../config/env.js';
-import { TEAM_MEMBERS } from '../scripts/setupTeamMembers.js';
+import { PDF_RECORDS } from '../scripts/importPdfMembers.js';
 
 async function seed() {
-  console.log('🌱 Starting Database Reset (Production Clean Mode)...');
+  console.log('🌱 Starting Database Reset with Official Members from PDF...');
   await mongoose.connect(ENV.MONGO_URI);
   console.log(' Connected to MongoDB:', ENV.MONGO_URI);
 
-  // 1. Clear ALL collections (removing all dummy users, events, attendance, logs)
+  // 1. Clear ALL collections
   await Promise.all([
     User.deleteMany({}),
     Vertical.deleteMany({}),
@@ -26,7 +26,7 @@ async function seed() {
     EmailLog.deleteMany({}),
     AuditLog.deleteMany({})
   ]);
-  console.log(' Cleared all dummy records from database.');
+  console.log(' Cleared all records from database.');
 
   // 2. Create Default Settings
   const settings = await Settings.create({
@@ -38,22 +38,22 @@ async function seed() {
     currentSession: '2024-2025',
     timezone: ENV.TIMEZONE
   });
-  console.log(' Created default settings (Threshold: 75%, Session: 2024-2025).');
+  console.log(' Created default settings.');
 
   // 3. Create Super Admin
   const adminSalt = await bcrypt.genSalt(12);
-  const adminPasswordHash = await bcrypt.hash(ENV.ADMIN_PASSWORD, adminSalt);
+  const adminPasswordHash = await bcrypt.hash(ENV.ADMIN_PASSWORD || 'Admin@12345', adminSalt);
 
   const admin = await User.create({
-    name: ENV.ADMIN_NAME,
-    email: ENV.ADMIN_EMAIL.toLowerCase(),
-    memberId: ENV.ADMIN_MEMBER_ID.toUpperCase(),
+    name: ENV.ADMIN_NAME || 'Super Admin',
+    email: (ENV.ADMIN_EMAIL || 'admin@ecell.org').toLowerCase(),
+    memberId: 'SUPERADMIN',
     passwordHash: adminPasswordHash,
     role: ROLES.ADMIN,
     vertical: null,
     phone: '+91 98765 43210',
     year: '4th Year',
-    branch: 'Computer Science',
+    branch: 'Administration',
     isActive: true,
     mustChangePassword: false,
     joinedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
@@ -75,66 +75,119 @@ async function seed() {
   }
   console.log(` Seeded ${verticalDocs.length} Core Verticals.`);
 
-  // 5. Create Official Team Members
-  const defaultPassword = 'Password@123';
-  const salt = await bcrypt.genSalt(12);
-  const defaultPasswordHash = await bcrypt.hash(defaultPassword, salt);
+  // Mapping aliases
+  verticalMap['resource & counselling'] = verticalMap['resource-counselling'];
+  verticalMap['r&c'] = verticalMap['resource-counselling'];
+  verticalMap['marketing'] = verticalMap['marketing'];
+  verticalMap['media relations'] = verticalMap['media-relations'];
+  verticalMap['finance & logistics'] = verticalMap['finance-logistics'];
+  verticalMap['finance and logistics'] = verticalMap['finance-logistics'];
+  verticalMap['corporate communication'] = verticalMap['corporate-communication'];
+  verticalMap['corporate communications'] = verticalMap['corporate-communication'];
+  verticalMap['creative designing'] = verticalMap['creative-designing'];
+  verticalMap['creative & designing'] = verticalMap['creative-designing'];
+  verticalMap['public relations'] = verticalMap['public-relations'];
 
-  const allTeamUsers = [];
+  const getRole = (rec) => {
+    const pos = (rec.position || '').toLowerCase();
+    const name = rec.name.toLowerCase();
+
+    if (pos.includes('team representative') || pos.includes('vtr') || name.includes('nikhilesh') || name.includes('rakesh') || name.includes('sri latha')) {
+      return ROLES.ADMIN;
+    }
+    if (pos.includes('lead') && name.includes('vasanta')) {
+      return ROLES.ADMIN;
+    }
+    if (pos.includes('lead')) {
+      return ROLES.LEAD;
+    }
+    if (pos.includes('secretary')) {
+      return ROLES.SECRETARY;
+    }
+    return ROLES.MEMBER;
+  };
+
+  const getVertical = (rec) => {
+    if (!rec.vertical) return null;
+    const vKey = rec.vertical.toLowerCase().trim();
+    return verticalMap[vKey] || null;
+  };
+
+  // 5. Create Official Members from PDF Records
+  const createdUsers = [];
   const verticalLeads = {};
   const verticalSecretaries = {};
 
-  for (const member of TEAM_MEMBERS) {
-    const vDoc = member.verticalSlug ? verticalMap[member.verticalSlug] : null;
+  let seqNumber = 1;
+
+  for (const rec of PDF_RECORDS) {
+    const seqStr = String(seqNumber).padStart(3, '0');
+    const memberId = `ECELL_${seqStr}`;
+    seqNumber++;
+
+    // Password: registrationnumber_ecell
+    const plainPassword = `${rec.regNo.trim()}_ecell`;
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(plainPassword, salt);
+
+    const vDoc = getVertical(rec);
+    const role = getRole(rec);
 
     const user = await User.create({
-      name: member.name,
-      email: member.email.toLowerCase(),
-      memberId: member.memberId.toUpperCase(),
-      passwordHash: defaultPasswordHash,
-      role: member.role,
+      name: rec.name.trim(),
+      email: rec.email.toLowerCase().trim(),
+      memberId,
+      passwordHash,
+      role,
       vertical: vDoc ? vDoc._id : null,
-      phone: member.phone,
-      year: member.year,
-      branch: member.branch,
+      phone: rec.phone.trim(),
+      year: rec.year.trim(),
+      branch: rec.branch.trim(),
+      registrationNumber: rec.regNo.trim(),
+      gender: rec.gender.trim(),
+      position: rec.position.trim(),
+      linkedinUrl: rec.linkedin.trim(),
+      residence: rec.residence.trim(),
       isActive: true,
       mustChangePassword: false,
-      joinedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+      joinedAt: new Date(rec.timestamp ? new Date(rec.timestamp).getTime() : Date.now() - 90 * 24 * 60 * 60 * 1000)
     });
 
-    allTeamUsers.push(user);
+    createdUsers.push(user);
 
-    if (member.verticalSlug) {
-      if (!verticalLeads[member.verticalSlug]) verticalLeads[member.verticalSlug] = [];
-      if (!verticalSecretaries[member.verticalSlug]) verticalSecretaries[member.verticalSlug] = [];
+    if (vDoc) {
+      const vSlug = vDoc.slug;
+      if (!verticalLeads[vSlug]) verticalLeads[vSlug] = [];
+      if (!verticalSecretaries[vSlug]) verticalSecretaries[vSlug] = [];
 
-      if (member.role === ROLES.LEAD || (member.role === ROLES.ADMIN && member.designation.includes('Lead'))) {
-        verticalLeads[member.verticalSlug].push(user._id);
+      if (role === ROLES.LEAD || (role === ROLES.ADMIN && rec.position.toLowerCase().includes('lead'))) {
+        verticalLeads[vSlug].push(user._id);
       }
-      if (member.role === ROLES.SECRETARY) {
-        verticalSecretaries[member.verticalSlug].push(user._id);
+      if (role === ROLES.SECRETARY) {
+        verticalSecretaries[vSlug].push(user._id);
       }
     }
   }
 
   // 6. Update Verticals with Assigned Leads & Secretaries
-  for (const [slug, vDoc] of Object.entries(verticalMap)) {
-    const leads = verticalLeads[slug] || [];
-    const secs = verticalSecretaries[slug] || [];
+  for (const vData of DEFAULT_VERTICALS) {
+    const vDoc = verticalMap[vData.slug];
+    if (vDoc) {
+      const leads = verticalLeads[vData.slug] || [];
+      const secs = verticalSecretaries[vData.slug] || [];
 
-    vDoc.leads = leads;
-    vDoc.secretary = secs.length > 0 ? secs[0] : null;
-    vDoc.secretaries = secs;
-    await vDoc.save();
+      vDoc.leads = leads;
+      vDoc.secretary = secs.length > 0 ? secs[0] : null;
+      vDoc.secretaries = secs;
+      await vDoc.save();
+    }
   }
-  console.log(` Seeded ${allTeamUsers.length} official team members (ZERO dummy users).`);
 
   console.log('\n======================================================');
-  console.log('✅ DATABASE IS COMPLETELY CLEAN: ZERO DUMMY DATA');
-  console.log(`- Users: ${allTeamUsers.length + 1} (Official team + Super Admin)`);
-  console.log(`- Verticals: ${verticalDocs.length} (Official core branches)`);
-  console.log('- Events: 0 (Ready for real events to be created)');
-  console.log('- Attendance: 0 (Ready for real attendance marking)');
+  console.log(`✅ DATABASE SEEDED WITH ${createdUsers.length} OFFICIAL MEMBERS`);
+  console.log(`- Member IDs: ECELL_001 to ECELL_${String(createdUsers.length).padStart(3, '0')}`);
+  console.log(`- Passwords: <RegistrationNumber>_ecell (e.g. 251FK01021_ecell)`);
+  console.log('- All student fields saved in MongoDB.');
   console.log('======================================================');
   process.exit(0);
 }

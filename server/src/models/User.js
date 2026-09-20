@@ -57,6 +57,31 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: ''
     },
+    registrationNumber: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    gender: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    position: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    linkedinUrl: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    residence: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     isActive: {
       type: Boolean,
       default: true,
