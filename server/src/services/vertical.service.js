@@ -9,6 +9,7 @@ class VerticalService {
   async listVerticals() {
     const verticals = await Vertical.find()
       .populate('secretary', 'name email memberId phone')
+      .populate('secretaries', 'name email memberId phone')
       .populate('leads', 'name email memberId phone')
       .sort({ name: 1 });
 
@@ -28,6 +29,7 @@ class VerticalService {
   async getVerticalById(id) {
     const vertical = await Vertical.findById(id)
       .populate('secretary', 'name email memberId phone')
+      .populate('secretaries', 'name email memberId phone')
       .populate('leads', 'name email memberId phone');
 
     if (!vertical) {

@@ -24,6 +24,12 @@ const verticalSchema = new mongoose.Schema(
       ref: 'User',
       default: null
     },
+    secretaries: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
     leads: [
       {
         type: mongoose.Schema.Types.ObjectId,

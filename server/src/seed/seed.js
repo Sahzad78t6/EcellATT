@@ -16,6 +16,7 @@ import {
   ATTENDANCE_SOURCE
 } from '../config/constants.js';
 import { ENV } from '../config/env.js';
+import { TEAM_MEMBERS } from '../scripts/setupTeamMembers.js';
 
 const isDemo = process.argv.includes('--demo');
 
@@ -73,7 +74,8 @@ async function seed() {
   });
   console.log(` Created Super Admin: ${admin.email} (Password: ${ENV.ADMIN_PASSWORD})`);
 
-  // 3. Create 8 Verticals
+  // 3. Create 7 Verticals
+  const verticalMap = {};
   const verticalDocs = [];
   for (const vData of DEFAULT_VERTICALS) {
     const vDoc = await Vertical.create({
@@ -83,112 +85,76 @@ async function seed() {
       isActive: true
     });
     verticalDocs.push(vDoc);
+    verticalMap[vData.slug] = vDoc;
   }
   console.log(` Seeded ${verticalDocs.length} Core Verticals.`);
+
+  // 4. Create Official Team Members
+  const defaultPassword = 'Password@123';
+  const salt = await bcrypt.genSalt(12);
+  const defaultPasswordHash = await bcrypt.hash(defaultPassword, salt);
+
+  const allTeamUsers = [];
+  const verticalLeads = {};
+  const verticalSecretaries = {};
+
+  for (const member of TEAM_MEMBERS) {
+    const vDoc = member.verticalSlug ? verticalMap[member.verticalSlug] : null;
+
+    const user = await User.create({
+      name: member.name,
+      email: member.email.toLowerCase(),
+      memberId: member.memberId.toUpperCase(),
+      passwordHash: defaultPasswordHash,
+      role: member.role,
+      vertical: vDoc ? vDoc._id : null,
+      phone: member.phone,
+      year: member.year,
+      branch: member.branch,
+      isActive: true,
+      mustChangePassword: false,
+      joinedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+    });
+
+    allTeamUsers.push(user);
+
+    if (member.verticalSlug) {
+      if (!verticalLeads[member.verticalSlug]) verticalLeads[member.verticalSlug] = [];
+      if (!verticalSecretaries[member.verticalSlug]) verticalSecretaries[member.verticalSlug] = [];
+
+      if (member.role === ROLES.LEAD || (member.role === ROLES.ADMIN && member.designation.includes('Lead'))) {
+        verticalLeads[member.verticalSlug].push(user._id);
+      }
+      if (member.role === ROLES.SECRETARY) {
+        verticalSecretaries[member.verticalSlug].push(user._id);
+      }
+    }
+  }
+
+  // Update Verticals with Assigned Leads & Secretaries
+  for (const [slug, vDoc] of Object.entries(verticalMap)) {
+    const leads = verticalLeads[slug] || [];
+    const secs = verticalSecretaries[slug] || [];
+
+    vDoc.leads = leads;
+    vDoc.secretary = secs.length > 0 ? secs[0] : null;
+    vDoc.secretaries = secs;
+    await vDoc.save();
+  }
+  console.log(` Seeded ${allTeamUsers.length} official team members.`);
 
   if (!isDemo) {
     console.log('✅ Basic seed finished successfully.');
     process.exit(0);
   }
 
-  // ================= DEMO DATA GENERATION =================
-  console.log('🚀 Generating rich demo data for all roles and dashboards...');
+  // ================= DEMO EVENTS & ATTENDANCE =================
+  console.log('🚀 Generating demo events and attendance records...');
 
-  const defaultPassword = 'Password@123';
-  const salt = await bcrypt.genSalt(12);
-  const demoPasswordHash = await bcrypt.hash(defaultPassword, salt);
-
-  const allMembers = [];
-  const allHeads = [];
-
-  const firstNames = [
-    'Aarav', 'Ananya', 'Rohan', 'Sneha', 'Vikram', 'Pooja', 'Karan', 'Isha',
-    'Aditya', 'Meera', 'Kabir', 'Rhea', 'Arjun', 'Tanvi', 'Siddharth', 'Divya',
-    'Rahul', 'Neha', 'Varun', 'Shreya', 'Manish', 'Kavya', 'Nikhil', 'Simran'
-  ];
-  const lastNames = [
-    'Sharma', 'Verma', 'Patel', 'Reddy', 'Gupta', 'Mehta', 'Chopra', 'Nair',
-    'Singh', 'Joshi', 'Bhatia', 'Malhotra', 'Kapoor', 'Saxena', 'Deshmukh', 'Das'
-  ];
-  const branches = ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Chemical', 'Civil'];
-  const years = ['1st Year', '2nd Year', '3rd Year'];
-
-  let memberCounter = 101;
-
-  for (let i = 0; i < verticalDocs.length; i++) {
-    const vertical = verticalDocs[i];
-    const vSlug = vertical.slug.replace(/-/g, '.');
-
-    // 1 Secretary per vertical
-    const secName = `${firstNames[(i * 2) % firstNames.length]} ${lastNames[(i * 2) % lastNames.length]}`;
-    const secretary = await User.create({
-      name: secName,
-      email: `${vSlug}.sec@ecell.org`,
-      memberId: `SEC${String(i + 1).padStart(3, '0')}`,
-      passwordHash: demoPasswordHash,
-      role: ROLES.SECRETARY,
-      vertical: vertical._id,
-      phone: `+91 98123 ${10000 + i}`,
-      year: '3rd Year',
-      branch: branches[i % branches.length],
-      isActive: true,
-      mustChangePassword: false,
-      joinedAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000)
-    });
-    vertical.secretary = secretary._id;
-    allHeads.push(secretary);
-
-    // 1 Lead per vertical
-    const leadName = `${firstNames[(i * 2 + 1) % firstNames.length]} ${lastNames[(i * 2 + 1) % lastNames.length]}`;
-    const lead = await User.create({
-      name: leadName,
-      email: `${vSlug}.lead@ecell.org`,
-      memberId: `LEAD${String(i + 1).padStart(3, '0')}`,
-      passwordHash: demoPasswordHash,
-      role: ROLES.LEAD,
-      vertical: vertical._id,
-      phone: `+91 98321 ${20000 + i}`,
-      year: '2nd Year',
-      branch: branches[(i + 1) % branches.length],
-      isActive: true,
-      mustChangePassword: false,
-      joinedAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000)
-    });
-    vertical.leads = [lead._id];
-    allHeads.push(lead);
-
-    await vertical.save();
-
-    // 8 Members per vertical
-    for (let m = 0; m < 8; m++) {
-      const fn = firstNames[(i * 8 + m) % firstNames.length];
-      const ln = lastNames[(i * 8 + m) % lastNames.length];
-      const mEmail = `member.${vertical.slug.substring(0, 4)}.${m + 1}@ecell.org`;
-      const mem = await User.create({
-        name: `${fn} ${ln}`,
-        email: mEmail,
-        memberId: `EC24${memberCounter++}`,
-        passwordHash: demoPasswordHash,
-        role: ROLES.MEMBER,
-        vertical: vertical._id,
-        phone: `+91 97000 ${30000 + memberCounter}`,
-        year: years[m % years.length],
-        branch: branches[m % branches.length],
-        isActive: true,
-        mustChangePassword: false,
-        joinedAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000)
-      });
-      allMembers.push(mem);
-    }
-  }
-
-  console.log(` Created ${allHeads.length} Vertical Heads (Secretaries & Leads) and ${allMembers.length} Members.`);
-
-  // 4. Create 10 Past Closed Events
   const pastEventsData = [
     { name: 'Annual Orientation & GBM 2024', type: 'General Body Meeting', daysAgo: 60, targetAll: true },
     { name: 'Ideation & Brainstorming Workshop', type: 'Workshop', daysAgo: 53, targetAll: true },
-    { name: 'Vertical Alignment & Roadmap Meeting', type: 'Vertical Meeting', daysAgo: 45, targetAll: false },
+    { name: 'Resource & Career Counselling Meetup', type: 'Vertical Meeting', daysAgo: 45, targetAll: false },
     { name: 'Speaker Session: Startup Funding 101', type: 'Event', daysAgo: 38, targetAll: true },
     { name: 'Mid-Semester Vertical Progress Review', type: 'Vertical Meeting', daysAgo: 30, targetAll: false },
     { name: 'Hackathon Planning & Strategy Session', type: 'Workshop', daysAgo: 24, targetAll: true },
@@ -209,11 +175,9 @@ async function seed() {
 
     let targetVerticals = [];
     if (!item.targetAll) {
-      // Pick 2-4 verticals for targeted meetings
       targetVerticals = [
         verticalDocs[idx % verticalDocs.length]._id,
-        verticalDocs[(idx + 1) % verticalDocs.length]._id,
-        verticalDocs[(idx + 2) % verticalDocs.length]._id
+        verticalDocs[(idx + 1) % verticalDocs.length]._id
       ];
     }
 
@@ -233,132 +197,90 @@ async function seed() {
     });
     closedEvents.push(eventDoc);
   }
-
   console.log(` Created ${closedEvents.length} Past Closed Events.`);
 
-  // 5. Generate Realistic Attendance Records
+  // Generate Attendance Records for Team Members
   const attendanceDocs = [];
-  const allParticipants = [...allHeads, ...allMembers];
-
   for (let eIdx = 0; eIdx < closedEvents.length; eIdx++) {
     const event = closedEvents[eIdx];
     const isTargetAll = !event.targetVerticals || event.targetVerticals.length === 0;
     const targetSet = new Set(event.targetVerticals.map((v) => v.toString()));
 
-    for (let uIdx = 0; uIdx < allParticipants.length; uIdx++) {
-      const user = allParticipants[uIdx];
+    for (let uIdx = 0; uIdx < allTeamUsers.length; uIdx++) {
+      const user = allTeamUsers[uIdx];
       const userVerticalId = user.vertical ? user.vertical.toString() : null;
 
       if (!isTargetAll && (!userVerticalId || !targetSet.has(userVerticalId))) {
-        continue; // Not eligible for this event
+        continue;
       }
 
-      // Member attendance probability (some members deliberately below 75% for at-risk demos)
-      let presentProbability = 0.85;
-      if (uIdx % 5 === 0) {
-        // Deliberately low attendance (around 40-50%)
-        presentProbability = 0.40;
-      } else if (uIdx % 7 === 0) {
-        // Borderline attendance (around 65%)
-        presentProbability = 0.65;
-      } else if (user.role === ROLES.SECRETARY || user.role === ROLES.LEAD) {
-        // High attendance for heads
-        presentProbability = 0.95;
-      }
-
-      const isPresent = Math.random() < presentProbability;
+      const isPresent = (uIdx + eIdx) % 5 !== 0; // ~80% attendance
       attendanceDocs.push({
         event: event._id,
         member: user._id,
-        vertical: user.vertical,
+        vertical: user.vertical || null,
         status: isPresent ? ATTENDANCE_STATUS.PRESENT : ATTENDANCE_STATUS.ABSENT,
-        markedBy: admin._id,
-        markedAt: event.endTime,
         source: ATTENDANCE_SOURCE.MANUAL,
-        remarks: isPresent ? '' : 'Absent during roll call'
+        markedBy: admin._id,
+        markedAt: new Date(event.date.getTime() + 45 * 60 * 1000)
       });
     }
   }
 
   await Attendance.insertMany(attendanceDocs);
-  console.log(` Seeded ${attendanceDocs.length} realistic attendance records.`);
+  console.log(` Generated ${attendanceDocs.length} Attendance Records.`);
 
-  // 6. Create 2 Upcoming / Live Events
-  const liveStartTime = new Date(Date.now() - 30 * 60 * 1000); // started 30 mins ago
-  const liveEndTime = new Date(Date.now() + 60 * 60 * 1000); // ends in 60 mins
-  const liveEvent = await Event.create({
+  // 6. Create Live OPEN Event
+  const now = new Date();
+  const openStart = new Date(now.getTime() - 15 * 60 * 1000);
+  const openEnd = new Date(now.getTime() + 45 * 60 * 1000);
+
+  const openEvent = await Event.create({
     name: 'E-Summit 2025 Core Committee Briefing',
-    description: 'Attendance window is currently OPEN. Heads must mark member attendance.',
-    type: 'Event',
-    date: new Date(),
-    startTime: liveStartTime,
-    endTime: liveEndTime,
-    venue: 'Innovation Hub & Online',
-    targetVerticals: [], // All verticals
+    description: 'Crucial coordination meetup for all vertical heads and core leads.',
+    type: 'General Body Meeting',
+    date: now,
+    startTime: openStart,
+    endTime: openEnd,
+    venue: 'E-Cell Innovation Center',
+    targetVerticals: [],
     status: EVENT_STATUS.OPEN,
-    manualOverride: true,
+    manualOverride: false,
     session: '2024-2025',
     createdBy: admin._id
   });
+  console.log(` Created Live OPEN Event: "${openEvent.name}" (Active Window).`);
 
+  // 7. Create Upcoming Scheduled Event
   const futureDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
-  const futureStartTime = new Date(futureDate.getTime());
-  futureStartTime.setHours(18, 0, 0, 0);
-  const futureEndTime = new Date(futureDate.getTime());
-  futureEndTime.setHours(20, 0, 0, 0);
-  const upcomingEvent = await Event.create({
-    name: 'National Venture Challenge Kickoff',
-    description: 'Upcoming scheduled workshop and kickoff meeting.',
+  const schedStart = new Date(futureDate.getTime());
+  schedStart.setHours(16, 0, 0, 0);
+  const schedEnd = new Date(futureDate.getTime());
+  schedEnd.setHours(18, 0, 0, 0);
+
+  const schedEvent = await Event.create({
+    name: 'Startup Pitch Deck & Sponsorship Review',
+    description: 'Reviewing finalist pitches and partnership collateral for summit.',
     type: 'Workshop',
     date: futureDate,
-    startTime: futureStartTime,
-    endTime: futureEndTime,
-    venue: 'Seminar Hall B',
-    targetVerticals: [verticalDocs[0]._id, verticalDocs[1]._id], // Creative & Technical
+    startTime: schedStart,
+    endTime: schedEnd,
+    venue: 'Room 204, Tech Park',
+    targetVerticals: [verticalDocs[0]._id, verticalDocs[1]._id],
     status: EVENT_STATUS.SCHEDULED,
     manualOverride: false,
     session: '2024-2025',
     createdBy: admin._id
   });
+  console.log(` Created Scheduled Event: "${schedEvent.name}".`);
 
-  console.log(` Created 1 OPEN Live Event ("${liveEvent.name}") and 1 Scheduled Upcoming Event ("${upcomingEvent.name}").`);
-
-  // 7. Seed Initial Audit Logs
-  await AuditLog.create([
-    {
-      actor: admin._id,
-      action: 'SYSTEM_SEED',
-      entityType: 'System',
-      entityId: 'ROOT',
-      reason: 'Initialized complete database schema and seed data',
-      ip: '127.0.0.1',
-      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    },
-    {
-      actor: admin._id,
-      action: 'SETTINGS_UPDATE',
-      entityType: 'Settings',
-      entityId: settings._id.toString(),
-      reason: 'Configured attendance threshold to 75%',
-      ip: '127.0.0.1',
-      createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000)
-    }
-  ]);
-
-  console.log(' Seeded initial audit logs.');
-  console.log('========================================================================');
-  console.log('🎉 SEED COMPLETED SUCCESSFULLY!');
-  console.log('------------------------------------------------------------------------');
-  console.log(`👑 ADMIN LOGIN:     ${ENV.ADMIN_EMAIL} / ${ENV.ADMIN_PASSWORD}`);
-  console.log(`👔 TECH HEAD LOGIN:  technical.lead@ecell.org / ${defaultPassword}`);
-  console.log(`👔 TECH SEC LOGIN:   technical.sec@ecell.org / ${defaultPassword}`);
-  console.log(`👤 MEMBER LOGIN:    member.tech.1@ecell.org / ${defaultPassword}`);
-  console.log('========================================================================');
-
+  console.log('\n========================================');
+  console.log('✅ DATABASE SEED COMPLETE WITH REAL ROSTER!');
+  console.log('========================================');
   process.exit(0);
 }
 
 seed().catch((err) => {
-  console.error('❌ Seed execution failed:', err);
+  console.error('❌ Seed script error:', err);
   process.exit(1);
 });

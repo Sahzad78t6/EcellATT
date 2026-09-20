@@ -147,13 +147,15 @@ export const VerticalManagementPage = () => {
 
               <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
                 {/* Secretary */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <span className="text-slate-400 flex items-center gap-1 font-medium">
                     <Shield className="w-3.5 h-3.5 text-indigo-500" />
                     <span>Secretary:</span>
                   </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {vert.secretary?.name || 'Unassigned'}
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-right">
+                    {vert.secretaries && vert.secretaries.length > 0
+                      ? vert.secretaries.map((s) => s.name).join(', ')
+                      : vert.secretary?.name || 'Unassigned'}
                   </span>
                 </div>
 

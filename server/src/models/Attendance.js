@@ -18,7 +18,8 @@ const attendanceSchema = new mongoose.Schema(
     vertical: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Vertical',
-      required: true,
+      required: false,
+      default: null,
       index: true
     },
     status: {
