@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { verticalApi } from '../../api/verticalApi';
 import { userApi } from '../../api/userApi';
-import { Layers, Plus, Edit, Users, UserCheck, Shield, X } from 'lucide-react';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { Layers, Plus, Edit, Trash2, Users, UserCheck, Shield, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
@@ -10,6 +11,7 @@ export const VerticalManagementPage = () => {
   const queryClient = useQueryClient();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editVertical, setEditVertical] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Fetch Verticals
   const { data: verticalsRes, isLoading } = useQuery({
@@ -62,6 +64,16 @@ export const VerticalManagementPage = () => {
     onError: (err) => toast.error(err.message || 'Failed to update vertical')
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => verticalApi.delete(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['verticals'] });
+      setDeleteTarget(null);
+      toast.success(data?.data?.message || 'Vertical deleted successfully');
+    },
+    onError: (err) => toast.error(err.message || 'Failed to delete vertical')
+  });
+
   const openEdit = (vert) => {
     setEditVertical(vert);
     setEditValue('name', vert.name);
@@ -78,7 +90,7 @@ export const VerticalManagementPage = () => {
             Vertical Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage the 8 organizational branches, secretaries, and leadership leads.
+            Manage organizational branches, secretaries, and leadership leads.
           </p>
         </div>
 
@@ -106,13 +118,22 @@ export const VerticalManagementPage = () => {
                 <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
                   <Layers className="w-5 h-5" />
                 </div>
-                <button
-                  onClick={() => openEdit(vert)}
-                  className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                  title="Edit Vertical"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => openEdit(vert)}
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    title="Edit Vertical"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(vert)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                    title="Delete Vertical"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -326,6 +347,19 @@ export const VerticalManagementPage = () => {
           </div>
         </div>
       )}
+
+      {/* ================= CONFIRM DELETE DIALOG ================= */}
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title={`Delete Vertical "${deleteTarget?.name}"`}
+        message={`Are you sure you want to permanently delete the "${deleteTarget?.name}" vertical? Assigned members will be unassigned and removed from targeted events.`}
+        confirmText="Delete Vertical"
+        cancelText="Cancel"
+        isDangerous={true}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate(deleteTarget?._id)}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

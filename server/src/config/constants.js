@@ -33,7 +33,6 @@ export const EVENT_TYPES = [
 
 export const DEFAULT_VERTICALS = [
   { name: 'Creative & Designing', slug: 'creative-designing', description: 'Visual design, branding, and multimedia assets.' },
-  { name: 'Technical', slug: 'technical', description: 'Web development, portal engineering, and technical infrastructure.' },
   { name: 'Corporate Communication', slug: 'corporate-communication', description: 'Industry outreach, corporate sponsorships, and B2B relations.' },
   { name: 'Resource & Counselling', slug: 'resource-counselling', description: 'Mentorship, internal training, and resource curation.' },
   { name: 'Media Relations', slug: 'media-relations', description: 'Press coverage, external media channels, and public announcements.' },

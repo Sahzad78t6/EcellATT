@@ -142,6 +142,41 @@ class VerticalService {
       .populate('secretary', 'name email memberId')
       .populate('leads', 'name email memberId');
   }
+
+  async deleteVertical(id, actor = null, ip = '') {
+    const vertical = await Vertical.findById(id);
+    if (!vertical) {
+      throw new Error('Vertical not found');
+    }
+
+    const before = vertical.toObject();
+
+    // Unassign users from this vertical
+    await User.updateMany(
+      { vertical: vertical._id },
+      { $set: { vertical: null } }
+    );
+
+    // Remove vertical from targetVerticals of any events
+    await Event.updateMany(
+      { targetVerticals: vertical._id },
+      { $pull: { targetVerticals: vertical._id } }
+    );
+
+    await Vertical.findByIdAndDelete(id);
+
+    await auditService.log({
+      actor: actor?._id || actor,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: 'Vertical',
+      entityId: vertical._id,
+      before,
+      reason: `Admin deleted vertical: ${vertical.name}`,
+      ip
+    });
+
+    return { message: `Vertical "${vertical.name}" deleted successfully` };
+  }
 }
 
 export const verticalService = new VerticalService();

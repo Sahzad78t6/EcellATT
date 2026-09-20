@@ -27,3 +27,9 @@ export const updateVertical = asyncHandler(async (req, res) => {
   const vertical = await verticalService.updateVertical(req.params.id, req.body, req.user, ip);
   return ApiResponse.success(res, vertical, 'Vertical updated successfully');
 });
+
+export const deleteVertical = asyncHandler(async (req, res) => {
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const result = await verticalService.deleteVertical(req.params.id, req.user, ip);
+  return ApiResponse.success(res, result, result.message);
+});
