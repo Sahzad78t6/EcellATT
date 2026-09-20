@@ -29,7 +29,7 @@ const settingsSchema = new mongoose.Schema(
     },
     currentSession: {
       type: String,
-      default: '2024-2025'
+      default: '2026-2027'
     },
     timezone: {
       type: String,

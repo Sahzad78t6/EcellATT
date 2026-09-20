@@ -51,7 +51,7 @@ export const MemberHistoryPage = () => {
       key: 'session',
       render: (row) => (
         <span className="text-xs text-slate-500 font-mono">
-          {row.event?.session || '2024-2025'}
+          {row.event?.session || '2026-2027'}
         </span>
       )
     },

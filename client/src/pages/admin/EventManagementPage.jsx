@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 
 export const EventManagementPage = () => {
   const queryClient = useQueryClient();
-  const [session, setSession] = useState('2024-2025');
+  const [session, setSession] = useState('2026-2027');
   const [statusFilter, setStatusFilter] = useState('');
   const [verticalFilter, setVerticalFilter] = useState('');
 
@@ -167,9 +167,9 @@ export const EventManagementPage = () => {
             onChange={(e) => setSession(e.target.value)}
             className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
           >
-            <option value="2024-2025">2024-2025 (Current)</option>
-            <option value="2023-2024">2023-2024</option>
-            <option value="2022-2023">2022-2023</option>
+            <option value="2026-2027">2026-2027 (Current)</option>
+            <option value="2027-2028">2027-2028</option>
+            <option value="2025-2026">2025-2026</option>
           </select>
         </div>
 
@@ -297,7 +297,7 @@ export const EventManagementPage = () => {
                   <input
                     type="text"
                     {...registerCreate('session')}
-                    defaultValue="2024-2025"
+                    defaultValue="2026-2027"
                     className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
                   />
                 </div>

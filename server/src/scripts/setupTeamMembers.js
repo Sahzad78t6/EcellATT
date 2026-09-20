@@ -331,7 +331,7 @@ export async function setupRealCredentials() {
         alertCooldownDays: 7,
         autoCloseBufferMinutes: 30,
         emailAlertsEnabled: true,
-        currentSession: '2024-2025',
+        currentSession: '2026-2027',
         timezone: ENV.TIMEZONE
       });
     }

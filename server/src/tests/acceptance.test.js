@@ -47,7 +47,7 @@ test.beforeEach(async () => {
     alertCooldownDays: 7,
     autoCloseBufferMinutes: 30,
     emailAlertsEnabled: true,
-    currentSession: '2024-2025'
+    currentSession: '2026-2027'
   });
 });
 
@@ -83,7 +83,7 @@ test('1. Cross-Vertical Authorization: Lead of Vertical A cannot mark Vertical B
     endTime: new Date(Date.now() + 3600000),
     status: EVENT_STATUS.OPEN,
     targetVerticals: [vertA._id, vertB._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: leadA._id
   });
 
@@ -134,7 +134,7 @@ test('2. Window Enforcement: Attendance cannot be marked when event is SCHEDULED
     startTime: new Date(Date.now() + 86400000),
     endTime: new Date(Date.now() + 90000000),
     status: EVENT_STATUS.SCHEDULED,
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -184,7 +184,7 @@ test('3. Duplicate Attendance Prevention: Compound index prevents duplicate (eve
     startTime: new Date(Date.now() - 3600000),
     endTime: new Date(Date.now() + 3600000),
     status: EVENT_STATUS.OPEN,
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -249,7 +249,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     endTime: new Date('2024-08-15T02:00:00.000Z'),
     status: EVENT_STATUS.CLOSED,
     targetVerticals: [vertTech._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -261,7 +261,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     endTime: new Date('2024-09-10T02:00:00.000Z'),
     status: EVENT_STATUS.CANCELLED,
     targetVerticals: [vertTech._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -273,7 +273,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     endTime: new Date('2024-09-12T02:00:00.000Z'),
     status: EVENT_STATUS.CLOSED,
     targetVerticals: [vertDesign._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -285,7 +285,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     endTime: new Date('2024-09-15T02:00:00.000Z'),
     status: EVENT_STATUS.CLOSED,
     targetVerticals: [vertTech._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
   await Attendance.create({
@@ -304,7 +304,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     endTime: new Date('2024-09-20T02:00:00.000Z'),
     status: EVENT_STATUS.CLOSED,
     targetVerticals: [], // All verticals
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
   await Attendance.create({
@@ -315,7 +315,7 @@ test('4. Percentage Calculation: Counts only closed, non-cancelled events after 
     markedBy: admin._id
   });
 
-  const stats = await alertService.calculateMemberAttendance(member._id, '2024-2025');
+  const stats = await alertService.calculateMemberAttendance(member._id, '2026-2027');
 
   // Should have exactly 2 eligible events, 1 present => 50%
   assert.strictEqual(stats.eligibleCount, 2);
@@ -362,7 +362,7 @@ test('5. Event Close Automation: Auto-marks absent for unmarked members and eval
     endTime: new Date(Date.now() - 3600000),
     status: EVENT_STATUS.OPEN,
     targetVerticals: [vert._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: admin._id
   });
 
@@ -436,7 +436,7 @@ test('6. Leadership Exclusion: Leads, Secretaries, and Admins are excluded from 
     endTime: new Date(Date.now() + 3600000),
     status: EVENT_STATUS.OPEN,
     targetVerticals: [vert._id],
-    session: '2024-2025',
+    session: '2026-2027',
     createdBy: lead._id
   });
 

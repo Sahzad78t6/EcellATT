@@ -101,7 +101,7 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
             E-Cell Attendance System
           </p>
           <p className="text-[10px] text-slate-400 dark:text-slate-600">
-            Academic Year 2024-2025
+            Academic Year 2026-2027
           </p>
         </div>
       </div>

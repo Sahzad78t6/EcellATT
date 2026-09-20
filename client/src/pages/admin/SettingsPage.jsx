@@ -193,7 +193,7 @@ export const SettingsPage = () => {
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-slate-100"
               />
               <p className="text-[11px] text-slate-400 mt-1">
-                Default session tag for new events and analytics (e.g. 2024-2025).
+                Default session tag for new events and analytics (e.g. 2026-2027).
               </p>
             </div>
           </div>

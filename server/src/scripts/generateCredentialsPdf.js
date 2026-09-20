@@ -50,7 +50,7 @@ function createPdf() {
   doc.fillColor('#ffffff').fontSize(16).font('Helvetica-Bold')
     .text('E-CELL STUDENT ATTENDANCE PORTAL', 46, 48, { align: 'center' });
   doc.fontSize(11).font('Helvetica')
-    .text('Official User Credentials Directory (Academic Session 2024-2025)', 46, 72, { align: 'center' });
+    .text('Official User Credentials Directory (Academic Session 2026-2027)', 46, 72, { align: 'center' });
   doc.fontSize(8).font('Helvetica')
     .text(`Total Accounts: ${1 + TEAM_MEMBERS.length + PDF_RECORDS.length} | Generated: ${new Date().toLocaleDateString()}`, 46, 88, { align: 'center' });
 
