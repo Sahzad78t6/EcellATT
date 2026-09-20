@@ -44,3 +44,11 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   return ApiResponse.success(res, null, result.message);
 });
+
+export const updateMe = asyncHandler(async (req, res) => {
+  const { name, phone, year, branch } = req.body;
+  const user = await authService.updateMe(req.user._id, { name, phone, year, branch });
+  return ApiResponse.success(res, user, 'Profile updated successfully');
+});
+
+

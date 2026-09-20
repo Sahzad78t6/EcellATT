@@ -99,11 +99,17 @@ export const Navbar = ({ onMenuClick }) => {
               </div>
 
               <div className="py-1">
-                {user?.role === 'MEMBER' && (
+                {!(user?.email?.toLowerCase() === 'admin@ecell.org' || user?.memberId === 'SUPERADMIN') && (
                   <button
                     onClick={() => {
                       setDropdownOpen(false);
-                      navigate('/member/profile');
+                      const target =
+                        user?.role === 'ADMIN'
+                          ? '/admin/profile'
+                          : user?.role === 'SECRETARY' || user?.role === 'LEAD'
+                          ? '/head/profile'
+                          : '/member/profile';
+                      navigate(target);
                     }}
                     className="w-full px-4 py-2.5 text-left text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-2 flex items-center gap-2.5 transition"
                   >

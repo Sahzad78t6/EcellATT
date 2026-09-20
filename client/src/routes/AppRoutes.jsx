@@ -94,6 +94,7 @@ export const AppRoutes = () => {
         <Route path="alerts" element={<EmailAlertsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="audit-logs" element={<AuditLogsPage />} />
+        <Route path="profile" element={<MemberProfilePage />} />
       </Route>
 
       {/* Vertical Head Dashboard Routes (Shared by SECRETARY & LEAD) */}
@@ -109,6 +110,7 @@ export const AppRoutes = () => {
         <Route path="members" element={<HeadMembersPage />} />
         <Route path="mark/:eventId" element={<MarkAttendancePage />} />
         <Route path="analytics" element={<HeadAnalyticsPage />} />
+        <Route path="profile" element={<MemberProfilePage />} />
       </Route>
 
       {/* Member Dashboard Routes */}

@@ -23,6 +23,7 @@ import clsx from 'clsx';
 export const Sidebar = ({ className = '', onItemClick = null }) => {
   const { user, logout } = useAuth();
   const role = user?.role;
+  const isSuperAdmin = user?.email?.toLowerCase() === 'admin@ecell.org' || user?.memberId === 'SUPERADMIN';
 
   let links = [];
 
@@ -36,13 +37,15 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
       { to: '/admin/reports', icon: FileSpreadsheet, label: 'Reports & Export' },
       { to: '/admin/alerts', icon: Mail, label: 'Email Alerts' },
       { to: '/admin/settings', icon: Sliders, label: 'Settings' },
-      { to: '/admin/audit-logs', icon: FileText, label: 'Audit Logs' }
+      { to: '/admin/audit-logs', icon: FileText, label: 'Audit Logs' },
+      ...(!isSuperAdmin ? [{ to: '/admin/profile', icon: UserIcon, label: 'My Profile' }] : [])
     ];
   } else if (role === 'SECRETARY' || role === 'LEAD') {
     links = [
       { to: '/head', icon: LayoutDashboard, label: 'Vertical Dashboard' },
       { to: '/head/members', icon: UserCheck, label: 'Vertical Members' },
-      { to: '/head/analytics', icon: BarChart3, label: 'Vertical Analytics' }
+      { to: '/head/analytics', icon: BarChart3, label: 'Vertical Analytics' },
+      { to: '/head/profile', icon: UserIcon, label: 'My Profile' }
     ];
   } else if (role === 'MEMBER') {
     links = [

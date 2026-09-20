@@ -191,7 +191,7 @@ export const MobileNav = ({ isOpen, onClose }) => {
               to="/head/analytics"
               className={({ isActive }) =>
                 clsx(
-                  'flex flex-col items-center justify-center min-w-[64px] min-h-[44px] px-3 py-1 rounded-xl text-[10px] font-bold transition-all',
+                  'flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-xl text-[10px] font-bold transition-all',
                   isActive ? 'text-brand-cyan' : 'text-text-muted hover:text-text-primary'
                 )
               }
@@ -200,6 +200,22 @@ export const MobileNav = ({ isOpen, onClose }) => {
                 <>
                   <BarChart3 className={clsx('w-5 h-5 mb-0.5', isActive && 'drop-shadow-[0_0_8px_rgba(34,211,238,0.7)]')} />
                   <span>Analytics</span>
+                </>
+              )}
+            </NavLink>
+            <NavLink
+              to="/head/profile"
+              className={({ isActive }) =>
+                clsx(
+                  'flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-xl text-[10px] font-bold transition-all',
+                  isActive ? 'text-brand-cyan' : 'text-text-muted hover:text-text-primary'
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <UserIcon className={clsx('w-5 h-5 mb-0.5', isActive && 'drop-shadow-[0_0_8px_rgba(34,211,238,0.7)]')} />
+                  <span>Profile</span>
                 </>
               )}
             </NavLink>

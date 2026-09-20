@@ -113,6 +113,21 @@ class AuthService {
     }
     return user;
   }
+
+  async updateMe(userId, { name, phone, year, branch }) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    if (name) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (year !== undefined) user.year = year.trim();
+    if (branch !== undefined) user.branch = branch.trim();
+    await user.save();
+
+    return await User.findById(userId).populate('vertical', 'name slug');
+  }
 }
 
 export const authService = new AuthService();
+
