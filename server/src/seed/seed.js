@@ -9,10 +9,11 @@ import { EmailLog } from '../models/EmailLog.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { ROLES, DEFAULT_VERTICALS } from '../config/constants.js';
 import { ENV } from '../config/env.js';
+import { TEAM_MEMBERS } from '../scripts/setupTeamMembers.js';
 import { PDF_RECORDS } from '../scripts/importPdfMembers.js';
 
 async function seed() {
-  console.log('🌱 Starting Database Reset with Official Members from PDF...');
+  console.log('🌱 Starting Complete Database Seeding (Admin & Heads + 183 Members)...');
   await mongoose.connect(ENV.MONGO_URI);
   console.log(' Connected to MongoDB:', ENV.MONGO_URI);
 
@@ -26,7 +27,7 @@ async function seed() {
     EmailLog.deleteMany({}),
     AuditLog.deleteMany({})
   ]);
-  console.log(' Cleared all records from database.');
+  console.log(' Cleared old records from database.');
 
   // 2. Create Default Settings
   const settings = await Settings.create({
@@ -88,36 +89,72 @@ async function seed() {
   verticalMap['creative & designing'] = verticalMap['creative-designing'];
   verticalMap['public relations'] = verticalMap['public-relations'];
 
-  const getRole = (rec) => {
-    const pos = (rec.position || '').toLowerCase();
-    const name = rec.name.toLowerCase();
+  // 5. Create Official Leadership & Admin Accounts (@ecell.org / Password@123)
+  const defaultPassword = 'Password@123';
+  const salt = await bcrypt.genSalt(12);
+  const defaultPasswordHash = await bcrypt.hash(defaultPassword, salt);
 
-    if (pos.includes('team representative') || pos.includes('vtr') || name.includes('nikhilesh') || name.includes('rakesh') || name.includes('sri latha')) {
-      return ROLES.ADMIN;
-    }
-    if (pos.includes('lead') && name.includes('vasanta')) {
-      return ROLES.ADMIN;
-    }
-    if (pos.includes('lead')) {
-      return ROLES.LEAD;
-    }
-    if (pos.includes('secretary')) {
-      return ROLES.SECRETARY;
-    }
-    return ROLES.MEMBER;
-  };
+  const createdLeadership = [];
+  const verticalLeads = {};
+  const verticalSecretaries = {};
 
+  for (const member of TEAM_MEMBERS) {
+    const vDoc = member.verticalSlug ? verticalMap[member.verticalSlug] : null;
+
+    const user = await User.create({
+      name: member.name,
+      email: member.email.toLowerCase(),
+      memberId: member.memberId.toUpperCase(),
+      passwordHash: defaultPasswordHash,
+      role: member.role,
+      vertical: vDoc ? vDoc._id : null,
+      phone: member.phone,
+      year: member.year,
+      branch: member.branch,
+      position: member.designation,
+      isActive: true,
+      mustChangePassword: false,
+      joinedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+    });
+
+    createdLeadership.push(user);
+
+    if (member.verticalSlug) {
+      if (!verticalLeads[member.verticalSlug]) verticalLeads[member.verticalSlug] = [];
+      if (!verticalSecretaries[member.verticalSlug]) verticalSecretaries[member.verticalSlug] = [];
+
+      if (member.role === ROLES.LEAD || (member.role === ROLES.ADMIN && member.designation.includes('Lead'))) {
+        verticalLeads[member.verticalSlug].push(user._id);
+      }
+      if (member.role === ROLES.SECRETARY) {
+        verticalSecretaries[member.verticalSlug].push(user._id);
+      }
+    }
+  }
+
+  // Update Verticals with Assigned Leads & Secretaries
+  for (const vData of DEFAULT_VERTICALS) {
+    const vDoc = verticalMap[vData.slug];
+    if (vDoc) {
+      const leads = verticalLeads[vData.slug] || [];
+      const secs = verticalSecretaries[vData.slug] || [];
+
+      vDoc.leads = leads;
+      vDoc.secretary = secs.length > 0 ? secs[0] : null;
+      vDoc.secretaries = secs;
+      await vDoc.save();
+    }
+  }
+  console.log(` Seeded ${createdLeadership.length} Official Leadership & Admin accounts.`);
+
+  // 6. Create 183 Student Member Accounts from PDF Records
   const getVertical = (rec) => {
     if (!rec.vertical) return null;
     const vKey = rec.vertical.toLowerCase().trim();
     return verticalMap[vKey] || null;
   };
 
-  // 5. Create Official Members from PDF Records
-  const createdUsers = [];
-  const verticalLeads = {};
-  const verticalSecretaries = {};
-
+  const createdMembers = [];
   let seqNumber = 1;
 
   for (const rec of PDF_RECORDS) {
@@ -127,18 +164,17 @@ async function seed() {
 
     // Password: registrationnumber_ecell
     const plainPassword = `${rec.regNo.trim()}_ecell`;
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(plainPassword, salt);
+    const memSalt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(plainPassword, memSalt);
 
     const vDoc = getVertical(rec);
-    const role = getRole(rec);
 
     const user = await User.create({
       name: rec.name.trim(),
       email: rec.email.toLowerCase().trim(),
       memberId,
       passwordHash,
-      role,
+      role: ROLES.MEMBER, // Student access
       vertical: vDoc ? vDoc._id : null,
       phone: rec.phone.trim(),
       year: rec.year.trim(),
@@ -153,41 +189,17 @@ async function seed() {
       joinedAt: new Date(rec.timestamp ? new Date(rec.timestamp).getTime() : Date.now() - 90 * 24 * 60 * 60 * 1000)
     });
 
-    createdUsers.push(user);
-
-    if (vDoc) {
-      const vSlug = vDoc.slug;
-      if (!verticalLeads[vSlug]) verticalLeads[vSlug] = [];
-      if (!verticalSecretaries[vSlug]) verticalSecretaries[vSlug] = [];
-
-      if (role === ROLES.LEAD || (role === ROLES.ADMIN && rec.position.toLowerCase().includes('lead'))) {
-        verticalLeads[vSlug].push(user._id);
-      }
-      if (role === ROLES.SECRETARY) {
-        verticalSecretaries[vSlug].push(user._id);
-      }
-    }
+    createdMembers.push(user);
   }
 
-  // 6. Update Verticals with Assigned Leads & Secretaries
-  for (const vData of DEFAULT_VERTICALS) {
-    const vDoc = verticalMap[vData.slug];
-    if (vDoc) {
-      const leads = verticalLeads[vData.slug] || [];
-      const secs = verticalSecretaries[vData.slug] || [];
-
-      vDoc.leads = leads;
-      vDoc.secretary = secs.length > 0 ? secs[0] : null;
-      vDoc.secretaries = secs;
-      await vDoc.save();
-    }
-  }
+  console.log(` Seeded ${createdMembers.length} Student Member accounts from PDF records.`);
 
   console.log('\n======================================================');
-  console.log(`✅ DATABASE SEEDED WITH ${createdUsers.length} OFFICIAL MEMBERS`);
-  console.log(`- Member IDs: ECELL_001 to ECELL_${String(createdUsers.length).padStart(3, '0')}`);
-  console.log(`- Passwords: <RegistrationNumber>_ecell (e.g. 251FK01021_ecell)`);
-  console.log('- All student fields saved in MongoDB.');
+  console.log('✅ DATABASE SEEDED SUCCESSFULLY WITH ALL CREDENTIALS!');
+  console.log(`- Super Admin: 1 (admin@ecell.org)`);
+  console.log(`- Leadership & Admins: ${createdLeadership.length} (@ecell.org / Password@123)`);
+  console.log(`- Student Members: ${createdMembers.length} (ECELL_001 to ECELL_183 / <regNo>_ecell)`);
+  console.log(`- Total Database Users: ${1 + createdLeadership.length + createdMembers.length}`);
   console.log('======================================================');
   process.exit(0);
 }

@@ -25,6 +25,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (identifier, password) => {
     const res = await authApi.login({ identifier, password });
+    if (res.data.token) {
+      localStorage.setItem('auth_token', res.data.token);
+    }
     setUser(res.data.user);
     toast.success('Logged in successfully');
     return res.data.user;
@@ -36,6 +39,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
+      localStorage.removeItem('auth_token');
       setUser(null);
       toast.success('Logged out successfully');
     }
