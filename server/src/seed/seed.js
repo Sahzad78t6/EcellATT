@@ -7,30 +7,16 @@ import { Attendance } from '../models/Attendance.js';
 import { Settings } from '../models/Settings.js';
 import { EmailLog } from '../models/EmailLog.js';
 import { AuditLog } from '../models/AuditLog.js';
-import {
-  ROLES,
-  DEFAULT_VERTICALS,
-  EVENT_STATUS,
-  EVENT_TYPES,
-  ATTENDANCE_STATUS,
-  ATTENDANCE_SOURCE
-} from '../config/constants.js';
+import { ROLES, DEFAULT_VERTICALS } from '../config/constants.js';
 import { ENV } from '../config/env.js';
 import { TEAM_MEMBERS } from '../scripts/setupTeamMembers.js';
 
-const isDemo = process.argv.includes('--demo');
-
 async function seed() {
-  if (isDemo && ENV.NODE_ENV === 'production') {
-    console.error('❌ Refusing to run --demo seed script in PRODUCTION environment.');
-    process.exit(1);
-  }
-
-  console.log(`🌱 Starting Database Seed (Demo Mode: ${isDemo ? 'ENABLED' : 'DISABLED'})...`);
+  console.log('🌱 Starting Database Reset (Production Clean Mode)...');
   await mongoose.connect(ENV.MONGO_URI);
   console.log(' Connected to MongoDB:', ENV.MONGO_URI);
 
-  // Clear existing collections
+  // 1. Clear ALL collections (removing all dummy users, events, attendance, logs)
   await Promise.all([
     User.deleteMany({}),
     Vertical.deleteMany({}),
@@ -40,9 +26,9 @@ async function seed() {
     EmailLog.deleteMany({}),
     AuditLog.deleteMany({})
   ]);
-  console.log(' Cleared existing database records.');
+  console.log(' Cleared all dummy records from database.');
 
-  // 1. Create Default Settings
+  // 2. Create Default Settings
   const settings = await Settings.create({
     lowAttendanceThreshold: 75,
     minEventsForAlert: 3,
@@ -54,7 +40,7 @@ async function seed() {
   });
   console.log(' Created default settings (Threshold: 75%, Session: 2024-2025).');
 
-  // 2. Create Super Admin
+  // 3. Create Super Admin
   const adminSalt = await bcrypt.genSalt(12);
   const adminPasswordHash = await bcrypt.hash(ENV.ADMIN_PASSWORD, adminSalt);
 
@@ -72,9 +58,9 @@ async function seed() {
     mustChangePassword: false,
     joinedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
   });
-  console.log(` Created Super Admin: ${admin.email} (Password: ${ENV.ADMIN_PASSWORD})`);
+  console.log(` Created Super Admin: ${admin.email}`);
 
-  // 3. Create 7 Verticals
+  // 4. Create 7 Official Verticals
   const verticalMap = {};
   const verticalDocs = [];
   for (const vData of DEFAULT_VERTICALS) {
@@ -89,7 +75,7 @@ async function seed() {
   }
   console.log(` Seeded ${verticalDocs.length} Core Verticals.`);
 
-  // 4. Create Official Team Members
+  // 5. Create Official Team Members
   const defaultPassword = 'Password@123';
   const salt = await bcrypt.genSalt(12);
   const defaultPasswordHash = await bcrypt.hash(defaultPassword, salt);
@@ -131,7 +117,7 @@ async function seed() {
     }
   }
 
-  // Update Verticals with Assigned Leads & Secretaries
+  // 6. Update Verticals with Assigned Leads & Secretaries
   for (const [slug, vDoc] of Object.entries(verticalMap)) {
     const leads = verticalLeads[slug] || [];
     const secs = verticalSecretaries[slug] || [];
@@ -141,142 +127,15 @@ async function seed() {
     vDoc.secretaries = secs;
     await vDoc.save();
   }
-  console.log(` Seeded ${allTeamUsers.length} official team members.`);
+  console.log(` Seeded ${allTeamUsers.length} official team members (ZERO dummy users).`);
 
-  if (!isDemo) {
-    console.log('✅ Basic seed finished successfully.');
-    process.exit(0);
-  }
-
-  // ================= DEMO EVENTS & ATTENDANCE =================
-  console.log('🚀 Generating demo events and attendance records...');
-
-  const pastEventsData = [
-    { name: 'Annual Orientation & GBM 2024', type: 'General Body Meeting', daysAgo: 60, targetAll: true },
-    { name: 'Ideation & Brainstorming Workshop', type: 'Workshop', daysAgo: 53, targetAll: true },
-    { name: 'Resource & Career Counselling Meetup', type: 'Vertical Meeting', daysAgo: 45, targetAll: false },
-    { name: 'Speaker Session: Startup Funding 101', type: 'Event', daysAgo: 38, targetAll: true },
-    { name: 'Mid-Semester Vertical Progress Review', type: 'Vertical Meeting', daysAgo: 30, targetAll: false },
-    { name: 'Hackathon Planning & Strategy Session', type: 'Workshop', daysAgo: 24, targetAll: true },
-    { name: 'Corporate Outreach & Pitch Deck Sprint', type: 'Vertical Meeting', daysAgo: 17, targetAll: false },
-    { name: 'Design Sprint & Branding Review', type: 'Vertical Meeting', daysAgo: 12, targetAll: false },
-    { name: 'Pre-Summit All-Hands Coordination', type: 'General Body Meeting', daysAgo: 7, targetAll: true },
-    { name: 'Sponsorship & Logistics Finalization', type: 'Vertical Meeting', daysAgo: 3, targetAll: false }
-  ];
-
-  const closedEvents = [];
-  for (let idx = 0; idx < pastEventsData.length; idx++) {
-    const item = pastEventsData[idx];
-    const eventDate = new Date(Date.now() - item.daysAgo * 24 * 60 * 60 * 1000);
-    const startTime = new Date(eventDate.getTime());
-    startTime.setHours(17, 0, 0, 0);
-    const endTime = new Date(eventDate.getTime());
-    endTime.setHours(19, 0, 0, 0);
-
-    let targetVerticals = [];
-    if (!item.targetAll) {
-      targetVerticals = [
-        verticalDocs[idx % verticalDocs.length]._id,
-        verticalDocs[(idx + 1) % verticalDocs.length]._id
-      ];
-    }
-
-    const eventDoc = await Event.create({
-      name: item.name,
-      description: `Official E-Cell session conducted on ${eventDate.toDateString()}.`,
-      type: item.type,
-      date: eventDate,
-      startTime,
-      endTime,
-      venue: item.targetAll ? 'Main Auditorium' : 'E-Cell Boardroom / Room 302',
-      targetVerticals,
-      status: EVENT_STATUS.CLOSED,
-      manualOverride: true,
-      session: '2024-2025',
-      createdBy: admin._id
-    });
-    closedEvents.push(eventDoc);
-  }
-  console.log(` Created ${closedEvents.length} Past Closed Events.`);
-
-  // Generate Attendance Records for Team Members
-  const attendanceDocs = [];
-  for (let eIdx = 0; eIdx < closedEvents.length; eIdx++) {
-    const event = closedEvents[eIdx];
-    const isTargetAll = !event.targetVerticals || event.targetVerticals.length === 0;
-    const targetSet = new Set(event.targetVerticals.map((v) => v.toString()));
-
-    for (let uIdx = 0; uIdx < allTeamUsers.length; uIdx++) {
-      const user = allTeamUsers[uIdx];
-      const userVerticalId = user.vertical ? user.vertical.toString() : null;
-
-      if (!isTargetAll && (!userVerticalId || !targetSet.has(userVerticalId))) {
-        continue;
-      }
-
-      const isPresent = (uIdx + eIdx) % 5 !== 0; // ~80% attendance
-      attendanceDocs.push({
-        event: event._id,
-        member: user._id,
-        vertical: user.vertical || null,
-        status: isPresent ? ATTENDANCE_STATUS.PRESENT : ATTENDANCE_STATUS.ABSENT,
-        source: ATTENDANCE_SOURCE.MANUAL,
-        markedBy: admin._id,
-        markedAt: new Date(event.date.getTime() + 45 * 60 * 1000)
-      });
-    }
-  }
-
-  await Attendance.insertMany(attendanceDocs);
-  console.log(` Generated ${attendanceDocs.length} Attendance Records.`);
-
-  // 6. Create Live OPEN Event
-  const now = new Date();
-  const openStart = new Date(now.getTime() - 15 * 60 * 1000);
-  const openEnd = new Date(now.getTime() + 45 * 60 * 1000);
-
-  const openEvent = await Event.create({
-    name: 'E-Summit 2025 Core Committee Briefing',
-    description: 'Crucial coordination meetup for all vertical heads and core leads.',
-    type: 'General Body Meeting',
-    date: now,
-    startTime: openStart,
-    endTime: openEnd,
-    venue: 'E-Cell Innovation Center',
-    targetVerticals: [],
-    status: EVENT_STATUS.OPEN,
-    manualOverride: false,
-    session: '2024-2025',
-    createdBy: admin._id
-  });
-  console.log(` Created Live OPEN Event: "${openEvent.name}" (Active Window).`);
-
-  // 7. Create Upcoming Scheduled Event
-  const futureDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
-  const schedStart = new Date(futureDate.getTime());
-  schedStart.setHours(16, 0, 0, 0);
-  const schedEnd = new Date(futureDate.getTime());
-  schedEnd.setHours(18, 0, 0, 0);
-
-  const schedEvent = await Event.create({
-    name: 'Startup Pitch Deck & Sponsorship Review',
-    description: 'Reviewing finalist pitches and partnership collateral for summit.',
-    type: 'Workshop',
-    date: futureDate,
-    startTime: schedStart,
-    endTime: schedEnd,
-    venue: 'Room 204, Tech Park',
-    targetVerticals: [verticalDocs[0]._id, verticalDocs[1]._id],
-    status: EVENT_STATUS.SCHEDULED,
-    manualOverride: false,
-    session: '2024-2025',
-    createdBy: admin._id
-  });
-  console.log(` Created Scheduled Event: "${schedEvent.name}".`);
-
-  console.log('\n========================================');
-  console.log('✅ DATABASE SEED COMPLETE WITH REAL ROSTER!');
-  console.log('========================================');
+  console.log('\n======================================================');
+  console.log('✅ DATABASE IS COMPLETELY CLEAN: ZERO DUMMY DATA');
+  console.log(`- Users: ${allTeamUsers.length + 1} (Official team + Super Admin)`);
+  console.log(`- Verticals: ${verticalDocs.length} (Official core branches)`);
+  console.log('- Events: 0 (Ready for real events to be created)');
+  console.log('- Attendance: 0 (Ready for real attendance marking)');
+  console.log('======================================================');
   process.exit(0);
 }
 
