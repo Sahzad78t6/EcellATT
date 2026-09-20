@@ -4,7 +4,8 @@ import { analyticsApi } from '../../api/analyticsApi';
 import { StatCard } from '../../components/common/StatCard';
 import { ChartCard } from '../../components/common/ChartCard';
 import { EventCard } from '../../components/common/EventCard';
-import { CheckCircle2, XCircle, Calendar, Percent } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { CheckCircle2, XCircle, Calendar, Percent, LogOut } from 'lucide-react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -21,6 +22,7 @@ import {
 import { formatPercentage } from '../../utils/formatters';
 
 export const MemberDashboardPage = () => {
+  const { logout } = useAuth();
   const [session, setSession] = useState('2024-2025');
 
   const { data: memberRes, isLoading } = useQuery({
@@ -57,16 +59,26 @@ export const MemberDashboardPage = () => {
           </h1>
         </div>
 
-        <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 px-2.5">Session:</span>
-          <select
-            value={session}
-            onChange={(e) => setSession(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none text-slate-900 dark:text-slate-100"
+        <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-sm">
+            <span className="text-xs font-bold text-slate-500 px-2.5">Session:</span>
+            <select
+              value={session}
+              onChange={(e) => setSession(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none text-slate-900 dark:text-slate-100"
+            >
+              <option value="2024-2025">2024-2025 (Current)</option>
+              <option value="2023-2024">2023-2024</option>
+            </select>
+          </div>
+
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-900/40 transition shadow-sm"
           >
-            <option value="2024-2025">2024-2025 (Current)</option>
-            <option value="2023-2024">2023-2024</option>
-          </select>
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
 

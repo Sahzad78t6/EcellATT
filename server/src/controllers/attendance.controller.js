@@ -36,6 +36,14 @@ export const adminEditAttendance = asyncHandler(async (req, res) => {
 });
 
 export const listAttendanceRecords = asyncHandler(async (req, res) => {
-  const result = await attendanceService.listAttendanceRecords(req.query);
+  let query = { ...req.query };
+  if (req.user.role === 'MEMBER') {
+    query.memberId = req.user._id.toString();
+  } else if (req.user.role === 'SECRETARY' || req.user.role === 'LEAD') {
+    if (req.scopedVerticalId && !query.memberId) {
+      query.verticalId = req.scopedVerticalId.toString();
+    }
+  }
+  const result = await attendanceService.listAttendanceRecords(query);
   return ApiResponse.success(res, result, 'Attendance records retrieved successfully');
 });

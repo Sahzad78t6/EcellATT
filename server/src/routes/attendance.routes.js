@@ -11,9 +11,8 @@ import { ROLES } from '../config/constants.js';
 const router = express.Router();
 
 router.use(authenticate);
-router.use(authorize(ROLES.ADMIN));
 
 router.get('/', listAttendanceRecords);
-router.patch('/:id', validate(adminEditAttendanceSchema), adminEditAttendance);
+router.patch('/:id', authorize(ROLES.ADMIN), validate(adminEditAttendanceSchema), adminEditAttendance);
 
 export default router;

@@ -9,6 +9,7 @@ import { StreaksList } from '../../components/analytics/StreaksList';
 import { Heatmap } from '../../components/analytics/Heatmap';
 import { EventCard } from '../../components/common/EventCard';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Users,
   Calendar,
@@ -16,7 +17,8 @@ import {
   AlertTriangle,
   Layers,
   Flame,
-  Grid
+  Grid,
+  LogOut
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -33,6 +35,7 @@ import {
 import { formatDate, formatPercentage } from '../../utils/formatters';
 
 export const AdminDashboardPage = () => {
+  const { logout } = useAuth();
   const [session, setSession] = useState('2024-2025');
   const [heatmapVerticalId, setHeatmapVerticalId] = useState('');
 
@@ -109,18 +112,29 @@ export const AdminDashboardPage = () => {
           </p>
         </div>
 
-        {/* Academic Session Selector */}
-        <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 px-2.5">Session:</span>
-          <select
-            value={session}
-            onChange={(e) => setSession(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+        {/* Controls Row */}
+        <div className="flex items-center gap-3">
+          {/* Academic Session Selector */}
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-sm">
+            <span className="text-xs font-bold text-slate-500 px-2.5">Session:</span>
+            <select
+              value={session}
+              onChange={(e) => setSession(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+            >
+              <option value="2024-2025">2024-2025 (Current)</option>
+              <option value="2023-2024">2023-2024</option>
+              <option value="2022-2023">2022-2023</option>
+            </select>
+          </div>
+
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-900/40 transition shadow-sm"
           >
-            <option value="2024-2025">2024-2025 (Current)</option>
-            <option value="2023-2024">2023-2024</option>
-            <option value="2022-2023">2022-2023</option>
-          </select>
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
 

@@ -14,11 +14,12 @@ import {
   UserCheck,
   History,
   User as UserIcon,
-  BarChart3
+  BarChart3,
+  LogOut
 } from 'lucide-react';
 
 export const Sidebar = ({ className = '', onItemClick = null }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const role = user?.role;
 
   let links = [];
@@ -85,14 +86,24 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="px-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-          E-Cell Attendance System v1.0
-        </p>
-        <p className="text-[10px] text-slate-400 dark:text-slate-600">
-          Academic Year 2024-2025
-        </p>
+      {/* Footer & Logout */}
+      <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <button
+          onClick={logout}
+          className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200/40 dark:border-rose-900/30 transition-all shadow-sm"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          <span>Sign Out / Logout</span>
+        </button>
+
+        <div className="px-3">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            E-Cell Attendance System
+          </p>
+          <p className="text-[10px] text-slate-400 dark:text-slate-600">
+            Academic Year 2024-2025
+          </p>
+        </div>
       </div>
     </aside>
   );

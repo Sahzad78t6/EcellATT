@@ -7,18 +7,21 @@ import { LiveEventBanner } from '../../components/common/LiveEventBanner';
 import { EventCard } from '../../components/common/EventCard';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Users,
   Percent,
   Calendar,
   AlertTriangle,
   ClipboardCheck,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { formatPercentage } from '../../utils/formatters';
 
 export const HeadDashboardPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Fetch scoped vertical summary
   const { data: summaryRes, isLoading } = useQuery({
@@ -51,15 +54,25 @@ export const HeadDashboardPage = () => {
           </h1>
         </div>
 
-        {activeLiveEvent && (
+        <div className="flex items-center gap-3">
+          {activeLiveEvent && (
+            <button
+              onClick={() => navigate(`/head/mark/${activeLiveEvent._id}`)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition"
+            >
+              <ClipboardCheck className="w-4 h-4" />
+              <span>Mark Live Attendance</span>
+            </button>
+          )}
+
           <button
-            onClick={() => navigate(`/head/mark/${activeLiveEvent._id}`)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition"
+            onClick={logout}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-900/40 transition shadow-sm"
           >
-            <ClipboardCheck className="w-4 h-4" />
-            <span>Mark Live Attendance</span>
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
           </button>
-        )}
+        </div>
       </div>
 
       {/* KPI Cards */}
