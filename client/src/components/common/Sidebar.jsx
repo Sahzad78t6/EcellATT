@@ -15,8 +15,10 @@ import {
   History,
   User as UserIcon,
   BarChart3,
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react';
+import clsx from 'clsx';
 
 export const Sidebar = ({ className = '', onItemClick = null }) => {
   const { user, logout } = useAuth();
@@ -52,13 +54,31 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
 
   return (
     <aside
-      className={`w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 px-4 shrink-0 ${className}`}
+      className={clsx(
+        'w-64 glass-sidebar flex flex-col justify-between py-6 px-4 shrink-0 z-20 select-none shadow-depth-2',
+        className
+      )}
     >
       <div className="space-y-6">
-        {/* Navigation Group */}
+        {/* Portal Branding / Role Badge */}
+        <div className="px-3 py-2 rounded-2xl bg-surface-2/60 border border-border-subtle flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-primary to-brand-deep flex items-center justify-center text-brand-ice font-bold text-xs shadow-sm">
+            <Sparkles className="w-4 h-4 text-brand-cyan" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold font-heading text-text-primary truncate">
+              {role === 'ADMIN' ? 'Admin Portal' : role === 'MEMBER' ? 'Member Portal' : 'Head Portal'}
+            </p>
+            <p className="text-[10px] text-brand-glow font-medium truncate">
+              {user?.vertical?.name || 'Executive Access'}
+            </p>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
         <div className="space-y-1">
-          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-            Navigation
+          <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-text-muted mb-2">
+            Main Menu
           </p>
           <nav className="space-y-1">
             {links.map((link) => {
@@ -70,15 +90,32 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
                   end={link.to === '/admin' || link.to === '/head' || link.to === '/member'}
                   onClick={onItemClick}
                   className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    clsx(
+                      'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all group relative',
                       isActive
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                    }`
+                        ? 'bg-gradient-to-r from-brand-deep/80 to-surface-2 text-brand-ice border border-brand-bright/40 shadow-[0_0_16px_rgba(59,130,246,0.25)] font-bold'
+                        : 'text-text-secondary hover:bg-surface-2/70 hover:text-text-primary hover:border-border-subtle border border-transparent'
+                    )
                   }
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{link.label}</span>
+                  {({ isActive }) => (
+                    <>
+                      {/* Active Left Indicator Bar */}
+                      {isActive && (
+                        <div
+                          className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-brand-cyan shadow-[0_0_8px_rgba(34,211,238,0.8)]"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <Icon
+                        className={clsx(
+                          'w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110',
+                          isActive ? 'text-brand-cyan' : 'text-text-muted group-hover:text-brand-glow'
+                        )}
+                      />
+                      <span className="truncate">{link.label}</span>
+                    </>
+                  )}
                 </NavLink>
               );
             })}
@@ -86,22 +123,22 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
         </div>
       </div>
 
-      {/* Footer & Logout */}
-      <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+      {/* Footer / Logout */}
+      <div className="space-y-3 pt-4 border-t border-border-subtle/80">
         <button
           onClick={logout}
-          className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200/40 dark:border-rose-900/30 transition-all shadow-sm"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-800/40 transition-all shadow-sm group"
         >
-          <LogOut className="w-4 h-4 shrink-0" />
-          <span>Sign Out / Logout</span>
+          <LogOut className="w-4 h-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+          <span>Sign Out</span>
         </button>
 
         <div className="px-3">
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+          <p className="text-[11px] text-text-muted font-medium">
             E-Cell Attendance System
           </p>
-          <p className="text-[10px] text-slate-400 dark:text-slate-600">
-            Academic Year 2026-2027
+          <p className="text-[10px] text-brand-glow/80 font-mono">
+            Session 2026-2027
           </p>
         </div>
       </div>

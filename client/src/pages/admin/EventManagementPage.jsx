@@ -6,11 +6,13 @@ import { EventCard } from '../../components/common/EventCard';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { Calendar, Plus, Filter, X } from 'lucide-react';
+import { Calendar, Plus, Filter, X, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 
 export const EventManagementPage = () => {
+  useDocumentTitle('Event Management');
   const queryClient = useQueryClient();
   const [session, setSession] = useState('2026-2027');
   const [statusFilter, setStatusFilter] = useState('');
@@ -135,13 +137,17 @@ export const EventManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Event Orchestration</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
             Event Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
             Schedule events, manage attendance windows, and oversee session lifecycles.
           </p>
         </div>
@@ -151,7 +157,7 @@ export const EventManagementPage = () => {
             resetCreate();
             setCreateModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/20 transition"
+          className="btn-3d-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Schedule New Event</span>
@@ -159,39 +165,45 @@ export const EventManagementPage = () => {
       </div>
 
       {/* Filter Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 surface-card rounded-2xl border border-brand-border shadow-depth-sm">
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Academic Session</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Academic Session
+          </label>
           <select
             value={session}
             onChange={(e) => setSession(e.target.value)}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="2026-2027">2026-2027</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Status Filter</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Status Filter
+          </label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Statuses</option>
             <option value="SCHEDULED">SCHEDULED</option>
-            <option value="OPEN">OPEN (Live)</option>
+            <option value="OPEN">OPEN (Live Window)</option>
             <option value="CLOSED">CLOSED</option>
             <option value="CANCELLED">CANCELLED</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Vertical Scope</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Vertical Scope
+          </label>
           <select
             value={verticalFilter}
             onChange={(e) => setVerticalFilter(e.target.value)}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Verticals / Scope</option>
             {verticals.map((v) => (
@@ -209,7 +221,7 @@ export const EventManagementPage = () => {
           {Array.from({ length: 6 }).map((_, idx) => (
             <div
               key={idx}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4"
+              className="surface-card p-5 rounded-2xl border border-brand-border/40 space-y-4 shadow-depth-sm"
             >
               <SkeletonLoader className="h-6 w-1/3" />
               <SkeletonLoader className="h-5 w-3/4" />
@@ -242,13 +254,15 @@ export const EventManagementPage = () => {
 
       {/* ================= MODAL: SCHEDULE EVENT ================= */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Schedule New Event</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            {/* Mobile drag handle */}
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Schedule New Event</h3>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -259,26 +273,26 @@ export const EventManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Event Title *
                 </label>
                 <input
                   type="text"
                   {...registerCreate('name', { required: 'Title is required' })}
                   placeholder="e.g. Annual GBM & Milestone Review"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Event Type *
                   </label>
                   <select
                     {...registerCreate('type')}
                     defaultValue="Event"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="General Body Meeting">General Body Meeting</option>
                     <option value="Vertical Meeting">Vertical Meeting</option>
@@ -289,72 +303,72 @@ export const EventManagementPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Academic Session *
                   </label>
                   <input
                     type="text"
                     {...registerCreate('session')}
                     defaultValue="2026-2027"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Event Date *
                 </label>
                 <input
                   type="date"
                   {...registerCreate('date', { required: 'Date is required' })}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Start Time *
                   </label>
                   <input
                     type="datetime-local"
                     {...registerCreate('startTime', { required: 'Start time is required' })}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     End Time *
                   </label>
                   <input
                     type="datetime-local"
                     {...registerCreate('endTime', { required: 'End time is required' })}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Venue
                 </label>
                 <input
                   type="text"
                   {...registerCreate('venue')}
                   placeholder="Main Auditorium / Online"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Target Scope (Select Verticals, or leave empty for All Verticals)
                 </label>
                 <select
                   multiple
                   {...registerCreate('targetVerticals')}
-                  className="w-full px-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 h-28"
+                  className="input-3d w-full px-3.5 py-2 text-xs rounded-xl h-28"
                 >
                   {verticals.map((v) => (
                     <option key={v._id} value={v._id}>
@@ -362,35 +376,35 @@ export const EventManagementPage = () => {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-text-muted mt-1">
                   Hold Ctrl/Cmd to select multiple. If none selected, event targets all verticals.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Description
                 </label>
                 <textarea
                   rows={2}
                   {...registerCreate('description')}
                   placeholder="Agenda and details..."
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isCreating ? 'Scheduling...' : 'Schedule Event'}
                 </button>
@@ -402,13 +416,15 @@ export const EventManagementPage = () => {
 
       {/* ================= MODAL: EDIT EVENT ================= */}
       {editEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Edit Event Details</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            {/* Mobile drag handle */}
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Edit Event Details</h3>
               <button
                 onClick={() => setEditEvent(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -421,24 +437,24 @@ export const EventManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Event Title
                 </label>
                 <input
                   type="text"
                   {...registerEdit('name', { required: true })}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Event Type
                   </label>
                   <select
                     {...registerEdit('type')}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="General Body Meeting">General Body Meeting</option>
                     <option value="Vertical Meeting">Vertical Meeting</option>
@@ -448,40 +464,40 @@ export const EventManagementPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Venue
                   </label>
                   <input
                     type="text"
                     {...registerEdit('venue')}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Description
                 </label>
                 <textarea
                   rows={2}
                   {...registerEdit('description')}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setEditEvent(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditing}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isEditing ? 'Saving...' : 'Save Changes'}
                 </button>

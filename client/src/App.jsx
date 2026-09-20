@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
 import { AppRoutes } from './routes/AppRoutes';
 
 const queryClient = new QueryClient({
@@ -19,39 +18,37 @@ const queryClient = new QueryClient({
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <AppRoutes />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  fontSize: '13px',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)'
-                },
-                success: {
-                  iconTheme: {
-                    primary: '#10b981',
-                    secondary: '#ffffff'
-                  }
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#ffffff'
-                  }
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              className: 'surface-card border border-border-bright text-text-primary text-xs font-semibold rounded-xl shadow-depth-3 backdrop-blur-md',
+              style: {
+                background: '#0a1224',
+                color: '#f1f5f9',
+                border: '1px solid rgba(96, 165, 250, 0.25)',
+                boxShadow: '0 12px 32px -4px rgba(0, 0, 0, 0.8), 0 0 16px rgba(59, 130, 246, 0.2)',
+                padding: '12px 16px',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#02040a'
                 }
-              }}
-            />
-          </BrowserRouter>
-        </AuthProvider>
-      </ThemeProvider>
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#02040a'
+                }
+              }
+            }}
+          />
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

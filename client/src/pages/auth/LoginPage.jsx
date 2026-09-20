@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LogIn, Key, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { LogIn, Key, Mail, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldCheck, TrendingUp } from 'lucide-react';
+import { Button } from '../../components/common/Button';
 
 const loginSchema = z.object({
   identifier: z.string().min(1, 'Email or Member ID is required'),
@@ -13,6 +14,7 @@ const loginSchema = z.object({
 });
 
 export const LoginPage = () => {
+  useDocumentTitle('Sign In');
   const { login, getDefaultRedirect } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -41,84 +43,126 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-7 sm:p-9 shadow-xl">
-      <div className="text-center space-y-2 mb-8">
-        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-          Sign In to Portal
+    <div className="space-y-6">
+      {/* 3D Floating Hero Showcase Panels (Desktop & Tablet) */}
+      <div className="relative mb-8 text-center" style={{ perspective: '1000px' }}>
+        {/* Floating Mini 3D Badge 1 - Left */}
+        <div
+          className="hidden sm:flex absolute -left-6 -top-5 items-center gap-2 px-3 py-1.5 rounded-xl surface-card border border-brand-bright/40 shadow-depth-2 animate-float-slow text-[11px] font-bold text-brand-ice"
+          style={{ transform: 'translateZ(30px) rotate(-6deg)' }}
+          aria-hidden="true"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Realtime Attendance</span>
+        </div>
+
+        {/* Floating Mini 3D Badge 2 - Right */}
+        <div
+          className="hidden sm:flex absolute -right-6 -bottom-3 items-center gap-2 px-3 py-1.5 rounded-xl surface-card border border-brand-bright/40 shadow-depth-2 animate-float-reverse text-[11px] font-bold text-brand-ice"
+          style={{ transform: 'translateZ(20px) rotate(5deg)' }}
+          aria-hidden="true"
+        >
+          <TrendingUp className="w-3.5 h-3.5 text-brand-cyan" />
+          <span>98.5% Accuracy</span>
+        </div>
+
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-deep/40 border border-brand-bright/30 text-brand-glow text-xs font-bold mb-3 shadow-sm">
+          <ShieldCheck className="w-3.5 h-3.5 text-brand-cyan" />
+          <span>Official Portal Access • 2026-2027</span>
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-black font-heading tracking-tight bg-gradient-to-r from-white via-text-primary to-brand-ice bg-clip-text text-transparent">
+          Welcome to E-Cell Portal
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Enter your official E-Cell email or Member ID and password
+        <p className="text-xs sm:text-sm text-text-secondary mt-1.5">
+          Sign in with your official E-Cell email or Student Member ID
         </p>
       </div>
 
-      {authError && (
-        <div className="mb-6 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 flex items-start space-x-3 text-rose-700 dark:text-rose-300 text-xs animate-shake">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <div className="flex-1 font-medium">{authError}</div>
-        </div>
-      )}
+      {/* Main Glassmorphic Login Card */}
+      <div className="surface-card border border-border-bright/90 rounded-3xl p-6 sm:p-8 shadow-depth-3 relative overflow-hidden backdrop-blur-xl">
+        {/* Subtle Conic Glow Behind Card */}
+        <div
+          className="absolute -top-24 -right-24 w-48 h-48 bg-brand-bright/20 rounded-full blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Identifier Input */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Email or Member ID
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              {...register('identifier')}
-              placeholder="e.g. tech.lead@ecell.org or EC24101"
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
-            />
+        {authError && (
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-950/70 border border-rose-600/40 flex items-start gap-3 text-rose-300 text-xs animate-in fade-in duration-200">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+            <div className="flex-1 font-semibold leading-relaxed">{authError}</div>
           </div>
-          {errors.identifier && (
-            <p className="mt-1 text-xs text-rose-600 font-medium">{errors.identifier.message}</p>
-          )}
-        </div>
+        )}
 
-        {/* Password Input */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-            Password
-          </label>
-          <div className="relative">
-            <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              {...register('password')}
-              placeholder="Enter your password"
-              className="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Identifier Input */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider">
+              Email or Member ID
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+              <input
+                type="text"
+                autoComplete="username"
+                {...register('identifier')}
+                placeholder="e.g. nikhilesh@ecell.org or ECELL_001"
+                className="input-3d w-full pl-10 pr-4"
+              />
+            </div>
+            {errors.identifier && (
+              <p className="text-xs text-rose-400 font-semibold">{errors.identifier.message}</p>
+            )}
+          </div>
+
+          {/* Password Input */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider">
+              Password
+            </label>
+            <div className="relative">
+              <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                {...register('password')}
+                placeholder="Enter your password"
+                className="input-3d w-full pl-10 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-xs text-rose-400 font-semibold">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isSubmitting}
+              icon={LogIn}
+              className="w-full shadow-btn-3d"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
+              Sign In to Dashboard
+            </Button>
           </div>
-          {errors.password && (
-            <p className="mt-1 text-xs text-rose-600 font-medium">{errors.password.message}</p>
-          )}
+        </form>
+
+        <div className="mt-6 pt-5 border-t border-border-subtle text-center text-xs text-text-muted leading-relaxed">
+          <p>
+            First time logging in? Student members use their default registration password.<br />
+            Need help? Contact your <strong>Vertical Secretary</strong> or <strong>Admin</strong>.
+          </p>
         </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full mt-2 inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/25 transition disabled:opacity-50"
-        >
-          <LogIn className="w-4 h-4" />
-          <span>{isSubmitting ? 'Verifying...' : 'Sign In'}</span>
-        </button>
-      </form>
-
-      <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p>
-          Need access or forgot your password? Please contact your <strong>Vertical Secretary</strong> or <strong>System Admin</strong>.
-        </p>
       </div>
     </div>
   );

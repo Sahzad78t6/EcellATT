@@ -5,12 +5,14 @@ import { eventApi } from '../../api/eventApi';
 import { verticalApi } from '../../api/verticalApi';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
-import { Edit3, CheckCircle2, XCircle, ShieldAlert, X } from 'lucide-react';
+import { Edit3, ShieldAlert, X, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { formatDateTime } from '../../utils/formatters';
 import toast from 'react-hot-toast';
 
 export const AttendanceOversightPage = () => {
+  useDocumentTitle('Attendance Oversight');
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [eventId, setEventId] = useState('');
@@ -80,8 +82,8 @@ export const AttendanceOversightPage = () => {
       key: 'member',
       render: (row) => (
         <div>
-          <p className="font-bold text-slate-900 dark:text-white">{row.member?.name}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+          <p className="font-bold text-text-primary">{row.member?.name}</p>
+          <p className="text-xs text-text-muted font-mono">
             {row.member?.memberId} • {row.vertical?.name || 'Unassigned'}
           </p>
         </div>
@@ -92,8 +94,8 @@ export const AttendanceOversightPage = () => {
       key: 'event',
       render: (row) => (
         <div>
-          <p className="font-semibold text-slate-800 dark:text-slate-200">{row.event?.name}</p>
-          <p className="text-[11px] text-slate-400">{row.event?.type} • {row.event?.session}</p>
+          <p className="font-semibold text-text-primary">{row.event?.name}</p>
+          <p className="text-[11px] text-text-muted">{row.event?.type} • {row.event?.session}</p>
         </div>
       )
     },
@@ -107,15 +109,15 @@ export const AttendanceOversightPage = () => {
       key: 'source',
       render: (row) => (
         <div className="text-xs">
-          <span className="font-bold uppercase tracking-wider text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+          <span className="font-mono font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-surface-2 text-brand-glow border border-brand-border/30">
             {row.source}
           </span>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-[11px] text-text-muted mt-1">
             {formatDateTime(row.markedAt)}
             {row.markedBy && ` by ${row.markedBy.name}`}
           </p>
           {row.remarks && (
-            <p className="text-[11px] text-slate-400 italic truncate max-w-xs">{row.remarks}</p>
+            <p className="text-[11px] text-text-secondary italic truncate max-w-xs">{row.remarks}</p>
           )}
         </div>
       )
@@ -126,9 +128,9 @@ export const AttendanceOversightPage = () => {
       render: (row) => (
         <button
           onClick={() => openEditModal(row)}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition"
+          className="btn-3d-secondary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold"
         >
-          <Edit3 className="w-3.5 h-3.5" />
+          <Edit3 className="w-3.5 h-3.5 text-brand-glow" />
           <span>Edit</span>
         </button>
       )
@@ -136,27 +138,35 @@ export const AttendanceOversightPage = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Attendance Oversight & Override
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Review complete organization-wide attendance records and make audited administrative adjustments.
-        </p>
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Attendance Governance</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
+            Attendance Oversight & Override
+          </h1>
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
+            Review complete organization-wide attendance records and make audited administrative adjustments.
+          </p>
+        </div>
       </div>
 
       {/* Filter Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 surface-card rounded-2xl border border-brand-border shadow-depth-sm">
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Filter by Event</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Filter by Event
+          </label>
           <select
             value={eventId}
             onChange={(e) => {
               setEventId(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Events</option>
             {events.map((e) => (
@@ -168,14 +178,16 @@ export const AttendanceOversightPage = () => {
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Filter by Vertical</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Filter by Vertical
+          </label>
           <select
             value={verticalId}
             onChange={(e) => {
               setVerticalId(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Verticals</option>
             {verticals.map((v) => (
@@ -187,14 +199,16 @@ export const AttendanceOversightPage = () => {
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Attendance Status</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Attendance Status
+          </label>
           <select
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Statuses</option>
             <option value="PRESENT">PRESENT</option>
@@ -213,27 +227,31 @@ export const AttendanceOversightPage = () => {
 
       {/* ================= MODAL: ADMIN EDIT ATTENDANCE ================= */}
       {editRecord && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
               <div className="flex items-center space-x-2">
-                <ShieldAlert className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                <ShieldAlert className="w-5 h-5 text-status-warning" />
+                <h3 className="text-lg font-heading font-bold text-text-primary">
                   Audited Attendance Override
                 </h3>
               </div>
               <button
                 onClick={() => setEditRecord(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs space-y-1">
-              <p><strong>Member:</strong> {editRecord.member?.name} ({editRecord.member?.memberId})</p>
-              <p><strong>Event:</strong> {editRecord.event?.name}</p>
-              <p><strong>Current Status:</strong> <StatusBadge status={editRecord.status} /></p>
+            <div className="p-3.5 bg-surface-1 rounded-xl text-xs space-y-1.5 border border-brand-border/40">
+              <p><strong className="text-text-secondary">Member:</strong> <span className="text-text-primary font-semibold">{editRecord.member?.name}</span> <span className="font-mono text-text-muted">({editRecord.member?.memberId})</span></p>
+              <p><strong className="text-text-secondary">Event:</strong> <span className="text-text-primary font-semibold">{editRecord.event?.name}</span></p>
+              <div className="flex items-center gap-2 pt-0.5">
+                <strong className="text-text-secondary">Current Status:</strong>
+                <StatusBadge status={editRecord.status} />
+              </div>
             </div>
 
             <form
@@ -243,12 +261,12 @@ export const AttendanceOversightPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   New Status *
                 </label>
                 <select
                   {...register('status', { required: true })}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl font-bold cursor-pointer"
                 >
                   <option value="PRESENT">PRESENT</option>
                   <option value="ABSENT">ABSENT</option>
@@ -256,7 +274,7 @@ export const AttendanceOversightPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Reason for Override * (Mandatory for Audit Trail)
                 </label>
                 <textarea
@@ -266,37 +284,37 @@ export const AttendanceOversightPage = () => {
                     minLength: { value: 5, message: 'Reason must be at least 5 characters' }
                   })}
                   placeholder="e.g. Student was attending university exam, permission granted by Faculty Advisor."
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
                 {errors.reason && (
-                  <p className="text-xs text-rose-600 mt-1">{errors.reason.message}</p>
+                  <p className="text-xs text-status-absent mt-1">{errors.reason.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Public Remarks
                 </label>
                 <input
                   type="text"
                   {...register('remarks')}
                   placeholder="Optional remarks visible to user"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setEditRecord(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isSubmitting ? 'Recording Audit...' : 'Save & Log Override'}
                 </button>

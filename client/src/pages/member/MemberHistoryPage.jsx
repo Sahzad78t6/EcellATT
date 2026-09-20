@@ -4,9 +4,12 @@ import { attendanceApi } from '../../api/attendanceApi';
 import { useAuth } from '../../hooks/useAuth';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { Sparkles } from 'lucide-react';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 
 export const MemberHistoryPage = () => {
+  useDocumentTitle('Attendance History');
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
@@ -32,8 +35,8 @@ export const MemberHistoryPage = () => {
       key: 'event',
       render: (row) => (
         <div>
-          <p className="font-bold text-slate-900 dark:text-white">{row.event?.name}</p>
-          <p className="text-xs text-slate-400">{row.event?.type} • {row.event?.venue}</p>
+          <p className="font-bold text-text-primary">{row.event?.name}</p>
+          <p className="text-xs text-text-muted">{row.event?.type} • {row.event?.venue || 'Online'}</p>
         </div>
       )
     },
@@ -41,7 +44,7 @@ export const MemberHistoryPage = () => {
       title: 'Event Date',
       key: 'date',
       render: (row) => (
-        <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+        <span className="text-xs text-text-secondary font-medium">
           {formatDate(row.event?.date)}
         </span>
       )
@@ -50,7 +53,7 @@ export const MemberHistoryPage = () => {
       title: 'Session',
       key: 'session',
       render: (row) => (
-        <span className="text-xs text-slate-500 font-mono">
+        <span className="text-xs text-text-muted font-mono">
           {row.event?.session || '2026-2027'}
         </span>
       )
@@ -64,35 +67,39 @@ export const MemberHistoryPage = () => {
       title: 'Marked At',
       key: 'markedAt',
       render: (row) => (
-        <div className="text-xs text-slate-400">
+        <div className="text-xs text-text-muted">
           <p>{formatDateTime(row.markedAt)}</p>
-          {row.remarks && <p className="italic text-[11px] text-slate-400 truncate max-w-xs">{row.remarks}</p>}
+          {row.remarks && <p className="italic text-[11px] text-text-secondary truncate max-w-xs">{row.remarks}</p>}
         </div>
       )
     }
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="pb-2 border-b border-white/[0.06]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Personal Activity Record</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
           Attendance History
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-text-secondary mt-1">
           Complete chronological record of all events attended and missed.
         </p>
       </div>
 
       {/* Filter Row */}
-      <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
-        <span className="text-xs font-bold text-slate-500 px-2">Status Filter:</span>
+      <div className="flex items-center space-x-2 surface-card p-3 rounded-2xl border border-brand-border shadow-depth-sm">
+        <span className="text-xs font-bold text-text-muted px-2">Status Filter:</span>
         <select
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-slate-900 dark:text-slate-100"
+          className="input-3d text-xs font-semibold rounded-xl px-3 py-1.5 text-text-primary cursor-pointer"
         >
           <option value="">All Records</option>
           <option value="PRESENT">Present Only</option>

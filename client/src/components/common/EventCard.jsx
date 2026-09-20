@@ -1,6 +1,7 @@
 import React from 'react';
-import { Calendar, Clock, MapPin, Users, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, ArrowRight, Edit, XCircle } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
+import { Button } from './Button';
 import { formatDate, formatTime } from '../../utils/formatters';
 
 export const EventCard = ({
@@ -17,43 +18,43 @@ export const EventCard = ({
   const isTargetAll = !event.targetVerticals || event.targetVerticals.length === 0;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+    <div className="surface-card border border-border-subtle hover:border-border-bright p-5 shadow-depth-2 hover:shadow-depth-3 transition-all flex flex-col justify-between space-y-4 rounded-2xl">
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <span className="px-2.5 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
+          <span className="px-2.5 py-0.5 rounded-lg bg-surface-2 text-brand-ice border border-border-subtle text-xs font-bold">
             {event.type}
           </span>
           <StatusBadge status={event.status} />
         </div>
 
         <div>
-          <h4 className="font-bold text-slate-900 dark:text-white text-base leading-snug">
+          <h4 className="font-bold font-heading text-text-primary text-base sm:text-lg leading-snug">
             {event.name}
           </h4>
           {event.description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+            <p className="text-xs text-text-secondary line-clamp-2 mt-1 leading-relaxed">
               {event.description}
             </p>
           )}
         </div>
 
-        <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+        <div className="space-y-1.5 text-xs text-text-secondary pt-1">
           <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>{formatDate(event.date)}</span>
+            <Calendar className="w-3.5 h-3.5 text-brand-glow shrink-0" />
+            <span className="font-mono">{formatDate(event.date)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>
+            <Clock className="w-3.5 h-3.5 text-brand-glow shrink-0" />
+            <span className="font-mono">
               {formatTime(event.startTime)} - {formatTime(event.endTime)}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>{event.venue || 'E-Cell Boardroom'}</span>
+            <MapPin className="w-3.5 h-3.5 text-brand-cyan shrink-0" />
+            <span className="truncate">{event.venue || 'E-Cell Hall'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Users className="w-3.5 h-3.5 text-brand-glow shrink-0" />
             <span className="truncate">
               {isTargetAll
                 ? 'All Verticals'
@@ -64,60 +65,70 @@ export const EventCard = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+      <div className="pt-3 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2">
         {/* Head or Admin Mark Attendance Action for Open Event */}
         {(isHead || isAdmin) && event.status === 'OPEN' && onMarkAttendance && (
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => onMarkAttendance(event)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition"
+            icon={ArrowRight}
+            iconPosition="right"
+            className="w-full sm:w-auto flex-1 shadow-btn-3d"
           >
-            <span>Mark Attendance</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+            Mark Attendance
+          </Button>
         )}
 
         {/* Admin Controls */}
         {isAdmin && (
-          <div className="flex items-center gap-1.5 w-full justify-end text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 w-full justify-end text-xs">
             {event.status === 'SCHEDULED' && onOpen && (
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => onOpen(event._id)}
-                className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-semibold rounded-lg hover:bg-emerald-100 transition"
               >
                 Open Window
-              </button>
+              </Button>
             )}
             {event.status === 'OPEN' && onClose && (
-              <button
+              <Button
+                variant="danger"
+                size="sm"
                 onClick={() => onClose(event._id)}
-                className="px-2.5 py-1.5 bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-semibold rounded-lg hover:bg-rose-100 transition"
               >
                 Close & Finalize
-              </button>
+              </Button>
             )}
             {event.status === 'CLOSED' && onReopen && (
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => onReopen(event._id)}
-                className="px-2.5 py-1.5 bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 font-semibold rounded-lg hover:bg-amber-100 transition"
               >
                 Reopen
-              </button>
+              </Button>
             )}
             {onEdit && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit(event)}
-                className="px-2.5 py-1.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                icon={Edit}
               >
                 Edit
-              </button>
+              </Button>
             )}
             {event.status !== 'CANCELLED' && onCancel && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onCancel(event._id)}
-                className="px-2.5 py-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition"
+                className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40"
               >
                 Cancel
-              </button>
+              </Button>
             )}
           </div>
         )}

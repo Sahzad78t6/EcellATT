@@ -8,6 +8,7 @@ import { EventCard } from '../../components/common/EventCard';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import {
   Users,
   Percent,
@@ -15,11 +16,13 @@ import {
   AlertTriangle,
   ClipboardCheck,
   ChevronRight,
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 import { formatPercentage } from '../../utils/formatters';
 
 export const HeadDashboardPage = () => {
+  useDocumentTitle('Vertical Head Dashboard');
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -39,17 +42,18 @@ export const HeadDashboardPage = () => {
   const activeLiveEvent = openEvents[0] || null;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-12">
       {/* Live Event Banner with Countdown */}
       {activeLiveEvent && <LiveEventBanner event={activeLiveEvent} />}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-            {summary.vertical?.name || 'Vertical'} Overview
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight mt-0.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{summary.vertical?.name || 'Vertical'} Overview</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
             Head Leadership Dashboard
           </h1>
         </div>
@@ -58,19 +62,20 @@ export const HeadDashboardPage = () => {
           {activeLiveEvent && (
             <button
               onClick={() => navigate(`/head/mark/${activeLiveEvent._id}`)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-500/20 transition"
+              className="btn-3d-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-glow-sm"
             >
-              <ClipboardCheck className="w-4 h-4" />
+              <ClipboardCheck className="w-4 h-4 text-status-present" />
               <span>Mark Live Attendance</span>
             </button>
           )}
 
           <button
             onClick={logout}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-900/40 transition shadow-sm"
+            className="btn-3d-danger inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold"
+            title="Logout"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Logout</span>
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
       </div>
@@ -82,14 +87,14 @@ export const HeadDashboardPage = () => {
           value={isLoading ? '...' : `${summary.averageAttendance || 0}%`}
           subtitle={`Threshold: ${summary.threshold || 75}%`}
           icon={Percent}
-          color="indigo"
+          color="blue"
         />
         <StatCard
           title="Vertical Members"
           value={isLoading ? '...' : summary.memberCount || 0}
           subtitle="Active members"
           icon={Users}
-          color="blue"
+          color="cyan"
         />
         <StatCard
           title="Upcoming Sessions"
@@ -110,16 +115,18 @@ export const HeadDashboardPage = () => {
       {/* Grid: Upcoming Sessions & At-Risk Members */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Events for This Vertical */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="surface-card rounded-2xl p-5 sm:p-6 border border-brand-border shadow-depth-md space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-heading font-bold text-text-primary">
               Upcoming & Live Sessions
             </h3>
           </div>
 
           <div className="space-y-3">
             {!summary.upcomingEvents || summary.upcomingEvents.length === 0 ? (
-              <p className="text-xs text-slate-500 py-6 text-center">No upcoming events scheduled.</p>
+              <p className="text-xs text-text-muted py-8 text-center bg-surface-1/50 rounded-xl border border-white/[0.04]">
+                No upcoming events scheduled.
+              </p>
             ) : (
               summary.upcomingEvents.map((ev) => (
                 <EventCard
@@ -134,14 +141,14 @@ export const HeadDashboardPage = () => {
         </div>
 
         {/* At-Risk Members List */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="surface-card rounded-2xl p-5 sm:p-6 border border-brand-border shadow-depth-md space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-heading font-bold text-text-primary">
               At-Risk Vertical Members (&lt; {summary.threshold || 75}%)
             </h3>
             <button
               onClick={() => navigate('/head/members')}
-              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-brand-glow hover:underline flex items-center gap-1"
             >
               <span>View All</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -150,23 +157,23 @@ export const HeadDashboardPage = () => {
 
           <div className="space-y-2">
             {!summary.atRiskMembers || summary.atRiskMembers.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500">
+              <div className="p-8 text-center text-xs text-text-muted bg-surface-1/50 rounded-xl border border-white/[0.04]">
                 🎉 All members in your vertical are currently in good attendance standing!
               </div>
             ) : (
               summary.atRiskMembers.map((m) => (
                 <div
                   key={m._id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-surface-1/80 border border-brand-border/40 hover:border-brand-border transition-colors"
                 >
                   <div>
-                    <p className="text-xs font-bold text-slate-900 dark:text-white">{m.name}</p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                    <p className="text-xs font-bold text-text-primary">{m.name}</p>
+                    <p className="text-[11px] text-text-muted font-mono mt-0.5">
                       {m.memberId} • Attended {m.attendedCount} of {m.eligibleCount}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-rose-600 dark:text-rose-400">
+                    <span className="text-xs font-mono font-black text-status-absent">
                       {formatPercentage(m.percentage)}
                     </span>
                     <StatusBadge status="AT RISK" />

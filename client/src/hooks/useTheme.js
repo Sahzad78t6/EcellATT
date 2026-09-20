@@ -1,10 +1,10 @@
-import { useContext } from 'react';
-import { ThemeContext } from '../context/ThemeContext';
-
+// Pure dark-mode stub for backwards compatibility
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+  return {
+    theme: 'dark',
+    isDark: true,
+    toggleTheme: () => {}
+  };
 };
+
+export default useTheme;

@@ -3,18 +3,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { verticalApi } from '../../api/verticalApi';
 import { userApi } from '../../api/userApi';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { Layers, Plus, Edit, Trash2, Users, UserCheck, Shield, X } from 'lucide-react';
+import { Layers, Plus, Edit, Trash2, Users, UserCheck, Shield, X, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 
 export const VerticalManagementPage = () => {
+  useDocumentTitle('Vertical Management');
   const queryClient = useQueryClient();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editVertical, setEditVertical] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Fetch Verticals
-  const { data: verticalsRes, isLoading } = useQuery({
+  const { data: verticalsRes } = useQuery({
     queryKey: ['verticals'],
     queryFn: () => verticalApi.list()
   });
@@ -83,13 +85,17 @@ export const VerticalManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Organizational Architecture</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
             Vertical Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
             Manage organizational branches, secretaries, and leadership leads.
           </p>
         </div>
@@ -99,7 +105,7 @@ export const VerticalManagementPage = () => {
             resetCreate();
             setCreateModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/20 transition"
+          className="btn-3d-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Vertical</span>
@@ -111,25 +117,27 @@ export const VerticalManagementPage = () => {
         {verticals.map((vert) => (
           <div
             key={vert._id}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4"
+            className="surface-card rounded-2xl p-5 border border-brand-border shadow-depth-sm hover:border-brand-glow/40 transition-all flex flex-col justify-between space-y-4"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                <div className="icon-orb text-brand-glow">
                   <Layers className="w-5 h-5" />
                 </div>
                 <div className="flex items-center space-x-1">
                   <button
                     onClick={() => openEdit(vert)}
-                    className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    className="p-1.5 text-text-muted hover:text-brand-glow hover:bg-surface-2 rounded-lg transition"
                     title="Edit Vertical"
+                    aria-label="Edit Vertical"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeleteTarget(vert)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                    className="p-1.5 text-text-muted hover:text-status-absent hover:bg-status-absent/10 rounded-lg transition"
                     title="Delete Vertical"
+                    aria-label="Delete Vertical"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -137,22 +145,22 @@ export const VerticalManagementPage = () => {
               </div>
 
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                <h3 className="text-base font-heading font-bold text-text-primary leading-tight">
                   {vert.name}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                <p className="text-xs text-text-muted mt-1 line-clamp-2">
                   {vert.description || 'No description provided.'}
                 </p>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div className="space-y-2 pt-3 border-t border-white/[0.04] text-xs">
                 {/* Secretary */}
-                <div className="flex items-start justify-between">
-                  <span className="text-slate-400 flex items-center gap-1 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-indigo-500" />
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-text-muted flex items-center gap-1 font-medium shrink-0">
+                    <Shield className="w-3.5 h-3.5 text-brand-glow" />
                     <span>Secretary:</span>
                   </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-right">
+                  <span className="font-bold text-text-primary text-right truncate">
                     {vert.secretaries && vert.secretaries.length > 0
                       ? vert.secretaries.map((s) => s.name).join(', ')
                       : vert.secretary?.name || 'Unassigned'}
@@ -160,12 +168,12 @@ export const VerticalManagementPage = () => {
                 </div>
 
                 {/* Leads */}
-                <div className="flex items-start justify-between">
-                  <span className="text-slate-400 flex items-center gap-1 font-medium">
-                    <UserCheck className="w-3.5 h-3.5 text-teal-500" />
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-text-muted flex items-center gap-1 font-medium shrink-0">
+                    <UserCheck className="w-3.5 h-3.5 text-brand-cyan" />
                     <span>Leads:</span>
                   </span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                  <span className="font-semibold text-text-secondary text-right truncate">
                     {vert.leads && vert.leads.length > 0
                       ? vert.leads.map((l) => l.name).join(', ')
                       : 'Unassigned'}
@@ -173,12 +181,12 @@ export const VerticalManagementPage = () => {
                 </div>
 
                 {/* Members */}
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1 font-medium">
-                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-text-muted flex items-center gap-1 font-medium">
+                    <Users className="w-3.5 h-3.5 text-text-muted" />
                     <span>Active Members:</span>
                   </span>
-                  <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                  <span className="font-mono font-extrabold text-brand-glow text-sm">
                     {vert.memberCount || 0}
                   </span>
                 </div>
@@ -190,13 +198,14 @@ export const VerticalManagementPage = () => {
 
       {/* ================= MODAL: CREATE VERTICAL ================= */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add New Vertical</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Add New Vertical</h3>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -207,36 +216,36 @@ export const VerticalManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Vertical Name *
                 </label>
                 <input
                   type="text"
                   {...registerCreate('name', { required: true })}
                   placeholder="e.g. Strategic Partnerships"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Description
                 </label>
                 <textarea
                   rows={3}
                   {...registerCreate('description')}
                   placeholder="Brief summary of vertical duties..."
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Assign Secretary
                 </label>
                 <select
                   {...registerCreate('secretary')}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                 >
                   <option value="">None / Assign Later</option>
                   {allUsers.map((u) => (
@@ -247,18 +256,18 @@ export const VerticalManagementPage = () => {
                 </select>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isCreating ? 'Creating...' : 'Create Vertical'}
                 </button>
@@ -270,15 +279,16 @@ export const VerticalManagementPage = () => {
 
       {/* ================= MODAL: EDIT VERTICAL ================= */}
       {editVertical && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">
                 Edit {editVertical.name}
               </h3>
               <button
                 onClick={() => setEditVertical(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -291,34 +301,34 @@ export const VerticalManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Vertical Name
                 </label>
                 <input
                   type="text"
                   {...registerEdit('name', { required: true })}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Description
                 </label>
                 <textarea
                   rows={3}
                   {...registerEdit('description')}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Assign Secretary
                 </label>
                 <select
                   {...registerEdit('secretary')}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                 >
                   <option value="">Unassigned</option>
                   {allUsers.map((u) => (
@@ -329,18 +339,18 @@ export const VerticalManagementPage = () => {
                 </select>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setEditVertical(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditing}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isEditing ? 'Saving...' : 'Save Changes'}
                 </button>

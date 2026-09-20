@@ -3,9 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '../../api/analyticsApi';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { Sparkles } from 'lucide-react';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { formatPercentage } from '../../utils/formatters';
 
 export const HeadMembersPage = () => {
+  useDocumentTitle('Vertical Members Roster');
   const [search, setSearch] = useState('');
 
   const { data: summaryRes, isLoading } = useQuery({
@@ -29,8 +32,8 @@ export const HeadMembersPage = () => {
       key: 'name',
       render: (row) => (
         <div>
-          <p className="font-bold text-slate-900 dark:text-white">{row.name}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{row.email}</p>
+          <p className="font-bold text-text-primary">{row.name}</p>
+          <p className="text-xs text-text-muted">{row.email}</p>
         </div>
       )
     },
@@ -38,7 +41,7 @@ export const HeadMembersPage = () => {
       title: 'Member ID',
       key: 'memberId',
       render: (row) => (
-        <span className="font-mono font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
+        <span className="font-mono font-bold text-xs bg-surface-2 text-brand-glow px-2.5 py-0.5 rounded-md border border-brand-border/40">
           {row.memberId}
         </span>
       )
@@ -47,8 +50,8 @@ export const HeadMembersPage = () => {
       title: 'Role',
       key: 'role',
       render: (row) => (
-        <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-          {row.role}
+        <span className="text-xs font-semibold text-brand-bright">
+          {row.role || 'MEMBER'}
         </span>
       )
     },
@@ -56,7 +59,7 @@ export const HeadMembersPage = () => {
       title: 'Eligible Sessions',
       key: 'eligibleCount',
       render: (row) => (
-        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <span className="text-xs font-mono font-medium text-text-secondary">
           {row.eligibleCount}
         </span>
       )
@@ -65,7 +68,7 @@ export const HeadMembersPage = () => {
       title: 'Attended',
       key: 'attendedCount',
       render: (row) => (
-        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+        <span className="text-xs font-mono font-bold text-status-present">
           {row.attendedCount}
         </span>
       )
@@ -74,7 +77,7 @@ export const HeadMembersPage = () => {
       title: 'Missed',
       key: 'absentCount',
       render: (row) => (
-        <span className="text-xs font-bold text-rose-600 dark:text-rose-400">
+        <span className="text-xs font-mono font-bold text-status-absent">
           {row.absentCount}
         </span>
       )
@@ -84,8 +87,8 @@ export const HeadMembersPage = () => {
       key: 'percentage',
       render: (row) => (
         <span
-          className={`text-sm font-extrabold ${
-            row.isAtRisk ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
+          className={`text-sm font-mono font-extrabold ${
+            row.isAtRisk ? 'text-status-absent' : 'text-brand-glow'
           }`}
         >
           {formatPercentage(row.percentage)}
@@ -102,12 +105,16 @@ export const HeadMembersPage = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="pb-2 border-b border-white/[0.06]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Team Attendance Oversight</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
           Vertical Members Roster
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-text-secondary mt-1">
           Attendance tracking and performance monitoring for members in your vertical.
         </p>
       </div>

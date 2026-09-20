@@ -4,11 +4,14 @@ import { userApi } from '../../api/userApi';
 import { verticalApi } from '../../api/verticalApi';
 import { DataTable } from '../../components/common/DataTable';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { UserPlus, Upload, Key, Edit, Power, Check, X, AlertCircle, Copy } from 'lucide-react';
+import { StatusBadge } from '../../components/common/StatusBadge';
+import { UserPlus, Upload, Key, Edit, Power, X, AlertCircle, Copy, Sparkles } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 
 export const UserManagementPage = () => {
+  useDocumentTitle('User & Member Management');
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -59,7 +62,6 @@ export const UserManagementPage = () => {
   const {
     register: registerEdit,
     handleSubmit: handleEditSubmit,
-    reset: resetEdit,
     setValue: setEditValue,
     formState: { errors: editErrors, isSubmitting: isEditing }
   } = useForm();
@@ -182,8 +184,8 @@ export const UserManagementPage = () => {
       key: 'name',
       render: (row) => (
         <div>
-          <p className="font-bold text-slate-900 dark:text-white">{row.name}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{row.email}</p>
+          <p className="font-bold text-text-primary">{row.name}</p>
+          <p className="text-xs text-text-muted">{row.email}</p>
         </div>
       )
     },
@@ -191,7 +193,7 @@ export const UserManagementPage = () => {
       title: 'Member ID',
       key: 'memberId',
       render: (row) => (
-        <span className="font-mono font-bold text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1 rounded">
+        <span className="font-mono font-bold text-xs bg-surface-2 text-brand-glow px-2.5 py-1 rounded-md border border-brand-border/40">
           {row.memberId}
         </span>
       )
@@ -200,7 +202,7 @@ export const UserManagementPage = () => {
       title: 'Role',
       key: 'role',
       render: (row) => (
-        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+        <span className="text-xs font-bold text-brand-bright">
           {row.role}
         </span>
       )
@@ -209,7 +211,7 @@ export const UserManagementPage = () => {
       title: 'Vertical',
       key: 'vertical',
       render: (row) => (
-        <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+        <span className="text-xs text-text-secondary font-medium">
           {row.vertical?.name || '—'}
         </span>
       )
@@ -218,7 +220,7 @@ export const UserManagementPage = () => {
       title: 'Year & Branch',
       key: 'year',
       render: (row) => (
-        <span className="text-xs text-slate-500 dark:text-slate-400">
+        <span className="text-xs text-text-muted">
           {row.year || ''} {row.branch ? `• ${row.branch}` : ''}
         </span>
       )
@@ -228,10 +230,10 @@ export const UserManagementPage = () => {
       key: 'isActive',
       render: (row) => (
         <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
             row.isActive
-              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
-              : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+              ? 'bg-status-present/10 text-status-present border border-status-present/20'
+              : 'bg-surface-3 text-text-muted border border-white/5'
           }`}
         >
           {row.isActive ? 'Active' : 'Deactivated'}
@@ -245,26 +247,29 @@ export const UserManagementPage = () => {
         <div className="flex items-center space-x-1.5">
           <button
             onClick={() => openEditModal(row)}
-            className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+            className="p-2 text-text-muted hover:text-brand-glow hover:bg-surface-2 rounded-lg transition"
             title="Edit User"
+            aria-label="Edit User"
           >
             <Edit className="w-4 h-4" />
           </button>
           <button
             onClick={() => setPasswordResetUser(row)}
-            className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+            className="p-2 text-text-muted hover:text-status-warning hover:bg-surface-2 rounded-lg transition"
             title="Reset Password"
+            aria-label="Reset Password"
           >
             <Key className="w-4 h-4" />
           </button>
           <button
             onClick={() => setToggleActiveUser(row)}
-            className={`p-1.5 rounded-lg transition ${
+            className={`p-2 rounded-lg transition ${
               row.isActive
-                ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40'
-                : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                ? 'text-text-muted hover:text-status-absent hover:bg-status-absent/10'
+                : 'text-text-muted hover:text-status-present hover:bg-status-present/10'
             }`}
             title={row.isActive ? 'Deactivate' : 'Reactivate'}
+            aria-label={row.isActive ? 'Deactivate' : 'Reactivate'}
           >
             <Power className="w-4 h-4" />
           </button>
@@ -274,21 +279,25 @@ export const UserManagementPage = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.06]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-glow text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Member Directory & Governance</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-text-primary tracking-tight">
             User & Member Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
             Create single accounts or bulk import members via CSV with instant credential dispatch.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => setBulkModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-bold transition"
+            className="btn-3d-secondary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold"
           >
             <Upload className="w-4 h-4" />
             <span>Bulk CSV Import</span>
@@ -298,7 +307,7 @@ export const UserManagementPage = () => {
               resetCreate();
               setCreateModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/20 transition"
+            className="btn-3d-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold"
           >
             <UserPlus className="w-4 h-4" />
             <span>Create User</span>
@@ -307,16 +316,18 @@ export const UserManagementPage = () => {
       </div>
 
       {/* Filter Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 surface-card rounded-2xl border border-brand-border shadow-depth-sm">
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Role Filter</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Role Filter
+          </label>
           <select
             value={roleFilter}
             onChange={(e) => {
               setRoleFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Roles</option>
             <option value="ADMIN">ADMIN</option>
@@ -327,14 +338,16 @@ export const UserManagementPage = () => {
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Vertical Filter</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Vertical Filter
+          </label>
           <select
             value={verticalFilter}
             onChange={(e) => {
               setVerticalFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Verticals</option>
             {verticals.map((v) => (
@@ -346,14 +359,16 @@ export const UserManagementPage = () => {
         </div>
 
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 mb-1">Account Status</label>
+          <label className="block text-[11px] font-bold text-text-muted mb-1 uppercase tracking-wider">
+            Account Status
+          </label>
           <select
             value={activeFilter}
             onChange={(e) => {
               setActiveFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100"
+            className="input-3d text-xs font-semibold rounded-xl px-3 py-2 text-text-primary cursor-pointer w-full"
           >
             <option value="">All Statuses</option>
             <option value="true">Active Only</option>
@@ -379,13 +394,14 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: CREATE USER ================= */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Create New User</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Create New User</h3>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -396,61 +412,61 @@ export const UserManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Full Name *
                 </label>
                 <input
                   type="text"
                   {...registerCreate('name', { required: 'Name is required' })}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
                 {createErrors.name && (
-                  <p className="text-xs text-rose-600 mt-1">{createErrors.name.message}</p>
+                  <p className="text-xs text-status-absent mt-1">{createErrors.name.message}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Email Address *
                   </label>
                   <input
                     type="email"
                     {...registerCreate('email', { required: 'Email is required' })}
                     placeholder="member@ecell.org"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                   {createErrors.email && (
-                    <p className="text-xs text-rose-600 mt-1">{createErrors.email.message}</p>
+                    <p className="text-xs text-status-absent mt-1">{createErrors.email.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Member ID *
                   </label>
                   <input
                     type="text"
                     {...registerCreate('memberId', { required: 'Member ID is required' })}
                     placeholder="e.g. EC24105"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl font-mono"
                   />
                   {createErrors.memberId && (
-                    <p className="text-xs text-rose-600 mt-1">{createErrors.memberId.message}</p>
+                    <p className="text-xs text-status-absent mt-1">{createErrors.memberId.message}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Role *
                   </label>
                   <select
                     {...registerCreate('role')}
                     defaultValue="MEMBER"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="MEMBER">MEMBER</option>
                     <option value="LEAD">LEAD</option>
@@ -460,12 +476,12 @@ export const UserManagementPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Vertical
                   </label>
                   <select
                     {...registerCreate('vertical')}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="">None (General/Admin)</option>
                     {verticals.map((v) => (
@@ -479,51 +495,51 @@ export const UserManagementPage = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Phone
                   </label>
                   <input
                     type="text"
                     {...registerCreate('phone')}
                     placeholder="+91..."
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Year
                   </label>
                   <input
                     type="text"
                     {...registerCreate('year')}
                     placeholder="1st Year"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Branch
                   </label>
                   <input
                     type="text"
                     {...registerCreate('branch')}
                     placeholder="CSE"
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Custom Password (Optional)
                 </label>
                 <input
                   type="text"
                   {...registerCreate('password')}
                   placeholder="Leave empty to auto-generate temporary password"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
@@ -533,28 +549,28 @@ export const UserManagementPage = () => {
                   type="checkbox"
                   id="sendEmailCredentials"
                   {...registerCreate('sendEmailCredentials')}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 rounded text-brand-primary focus:ring-brand-glow bg-surface-2 border-brand-border/40"
                 />
                 <label
                   htmlFor="sendEmailCredentials"
-                  className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
+                  className="text-xs font-semibold text-text-secondary cursor-pointer"
                 >
                   Email login credentials to the member
                 </label>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isCreating ? 'Creating...' : 'Create Member'}
                 </button>
@@ -566,13 +582,14 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: EDIT USER ================= */}
       {editUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Edit User Profile</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Edit User Profile</h3>
               <button
                 onClick={() => setEditUser(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -585,47 +602,47 @@ export const UserManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Full Name
                 </label>
                 <input
                   type="text"
                   {...registerEdit('name', { required: 'Name is required' })}
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Email
                   </label>
                   <input
                     type="email"
                     {...registerEdit('email', { required: 'Email is required' })}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Member ID
                   </label>
                   <input
                     type="text"
                     {...registerEdit('memberId', { required: 'Member ID is required' })}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Role
                   </label>
                   <select
                     {...registerEdit('role')}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="MEMBER">MEMBER</option>
                     <option value="LEAD">LEAD</option>
@@ -634,12 +651,12 @@ export const UserManagementPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                     Vertical
                   </label>
                   <select
                     {...registerEdit('vertical')}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                    className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl cursor-pointer"
                   >
                     <option value="">None (General/Admin)</option>
                     {verticals.map((v) => (
@@ -651,18 +668,18 @@ export const UserManagementPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setEditUser(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditing}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isEditing ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -674,43 +691,44 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: BULK CSV IMPORT ================= */}
       {bulkModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Bulk CSV User Import</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Bulk CSV User Import</h3>
               <button
                 onClick={() => setBulkModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-              <p className="font-bold text-slate-900 dark:text-white">CSV Format Specification:</p>
-              <p className="font-mono text-[11px] text-indigo-600 dark:text-indigo-400">
+            <div className="p-3.5 bg-surface-1 rounded-xl border border-brand-border/40 text-xs text-text-secondary space-y-1">
+              <p className="font-bold text-text-primary">CSV Format Specification:</p>
+              <p className="font-mono text-[11px] text-brand-glow">
                 name,email,memberId,role,vertical,phone,year,branch,password
               </p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-text-muted">
                 (Header row is required. Valid rows will import even if some rows contain errors.)
               </p>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Upload CSV File
                 </label>
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleCsvFileUpload}
-                  className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300"
+                  className="block w-full text-xs text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-primary/20 file:text-brand-glow hover:file:bg-brand-primary/30 file:cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Or Paste CSV Text
                 </label>
                 <textarea
@@ -718,7 +736,7 @@ export const UserManagementPage = () => {
                   value={csvText}
                   onChange={(e) => setCsvText(e.target.value)}
                   placeholder="name,email,memberId,role,vertical..."
-                  className="w-full p-3 font-mono text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full p-3 font-mono text-xs rounded-xl"
                 />
               </div>
 
@@ -728,22 +746,22 @@ export const UserManagementPage = () => {
                   id="sendBulkEmail"
                   checked={sendBulkEmail}
                   onChange={(e) => setSendBulkEmail(e.target.checked)}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 rounded text-brand-primary focus:ring-brand-glow bg-surface-2 border-brand-border/40"
                 />
                 <label
                   htmlFor="sendBulkEmail"
-                  className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
+                  className="text-xs font-semibold text-text-secondary cursor-pointer"
                 >
                   Email login credentials to all imported members
                 </label>
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
               <button
                 type="button"
                 onClick={() => setBulkModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
               >
                 Cancel
               </button>
@@ -751,7 +769,7 @@ export const UserManagementPage = () => {
                 type="button"
                 onClick={handleBulkSubmit}
                 disabled={isBulkUploading}
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 transition disabled:opacity-50 flex items-center space-x-2"
+                className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50 flex items-center space-x-2"
               >
                 <Upload className="w-4 h-4" />
                 <span>{isBulkUploading ? 'Importing CSV...' : 'Process & Import CSV'}</span>
@@ -763,32 +781,33 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: BULK RESULT & ERROR REPORT ================= */}
       {bulkResultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Bulk Import Report</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">Bulk Import Report</h3>
               <button
                 onClick={() => setBulkResultModal(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-center">
-                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              <div className="p-3.5 bg-status-present/10 border border-status-present/20 rounded-2xl text-center">
+                <div className="text-2xl font-black font-mono text-status-present">
                   {bulkResultModal.importedCount}
                 </div>
-                <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase">
-                  Successfully Imported
+                <div className="text-xs font-bold text-status-present uppercase tracking-wider mt-0.5">
+                  Imported
                 </div>
               </div>
-              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-2xl text-center">
-                <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
+              <div className="p-3.5 bg-status-absent/10 border border-status-absent/20 rounded-2xl text-center">
+                <div className="text-2xl font-black font-mono text-status-absent">
                   {bulkResultModal.failedCount}
                 </div>
-                <div className="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase">
+                <div className="text-xs font-bold text-status-absent uppercase tracking-wider mt-0.5">
                   Failed Rows
                 </div>
               </div>
@@ -796,12 +815,12 @@ export const UserManagementPage = () => {
 
             {bulkResultModal.errors && bulkResultModal.errors.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <p className="text-xs font-bold text-text-secondary">
                   Per-Row Error Diagnostics:
                 </p>
-                <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs border border-slate-200 dark:border-slate-800 rounded-xl p-2">
+                <div className="max-h-48 overflow-y-auto divide-y divide-white/[0.04] text-xs border border-brand-border/40 rounded-xl p-2 bg-surface-1/50">
                   {bulkResultModal.errors.map((err, idx) => (
-                    <div key={idx} className="py-1.5 flex items-start gap-2 text-rose-600 dark:text-rose-400">
+                    <div key={idx} className="py-1.5 flex items-start gap-2 text-status-absent">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <div>
                         <strong>Row {err.row}</strong> ({err.email}): {err.error}
@@ -815,7 +834,7 @@ export const UserManagementPage = () => {
             <button
               type="button"
               onClick={() => setBulkResultModal(null)}
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition"
+              className="btn-3d-primary w-full py-2.5 rounded-xl text-xs font-bold"
             >
               Close Report
             </button>
@@ -825,26 +844,27 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: TEMPORARY PASSWORD DISPLAY ================= */}
       {tempPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-4 text-center">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4 text-center">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-brand-primary/20 border border-brand-primary/30 text-brand-glow flex items-center justify-center shadow-glow-sm">
               <Key className="w-6 h-6" />
             </div>
 
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            <h3 className="text-lg font-heading font-bold text-text-primary">
               Temporary Login Password
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-text-muted">
               Please share these credentials with <strong>{tempPasswordModal.user?.name}</strong>. This password is shown only once.
             </p>
 
-            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-between border border-slate-200 dark:border-slate-700">
-              <span className="font-mono text-base font-extrabold text-indigo-600 dark:text-indigo-400 tracking-wider">
+            <div className="p-4 bg-surface-1 rounded-2xl flex items-center justify-between border border-brand-border/50">
+              <span className="font-mono text-base font-extrabold text-brand-glow tracking-wider">
                 {tempPasswordModal.tempPassword}
               </span>
               <button
                 onClick={() => copyToClipboard(tempPasswordModal.tempPassword)}
-                className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                className="p-2 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-2 transition"
                 title="Copy Password"
               >
                 <Copy className="w-4 h-4" />
@@ -853,7 +873,7 @@ export const UserManagementPage = () => {
 
             <button
               onClick={() => setTempPasswordModal(null)}
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition"
+              className="btn-3d-primary w-full py-2.5 rounded-xl text-xs font-bold"
             >
               I Have Saved This Password
             </button>
@@ -863,15 +883,16 @@ export const UserManagementPage = () => {
 
       {/* ================= MODAL: RESET PASSWORD ================= */}
       {passwordResetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-bg-0/80 backdrop-blur-md animate-fade-in">
+          <div className="surface-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-brand-border space-y-4">
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+            <div className="flex items-center justify-between pb-3 border-b border-brand-border/30">
+              <h3 className="text-lg font-heading font-bold text-text-primary">
                 Reset Password for {passwordResetUser.name}
               </h3>
               <button
                 onClick={() => setPasswordResetUser(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -884,14 +905,14 @@ export const UserManagementPage = () => {
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
                   Custom Password (Optional)
                 </label>
                 <input
                   type="text"
                   {...registerReset('password')}
                   placeholder="Leave blank to auto-generate temporary password"
-                  className="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                  className="input-3d w-full px-3.5 py-2.5 text-sm rounded-xl"
                 />
               </div>
 
@@ -900,28 +921,28 @@ export const UserManagementPage = () => {
                   type="checkbox"
                   id="resetEmailCredentials"
                   {...registerReset('sendEmailCredentials')}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 rounded text-brand-primary focus:ring-brand-glow bg-surface-2 border-brand-border/40"
                 />
                 <label
                   htmlFor="resetEmailCredentials"
-                  className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
+                  className="text-xs font-semibold text-text-secondary cursor-pointer"
                 >
                   Email new password to user
                 </label>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border/30">
                 <button
                   type="button"
                   onClick={() => setPasswordResetUser(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  className="btn-3d-secondary px-4 py-2.5 text-xs font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isResetting}
-                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-md transition disabled:opacity-50"
+                  className="btn-3d-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                 >
                   {isResetting ? 'Resetting...' : 'Confirm Reset Password'}
                 </button>
