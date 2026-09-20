@@ -56,8 +56,14 @@ export const ChangePasswordPage = () => {
   return (
     <div className="surface-card border border-border-bright rounded-3xl p-6 sm:p-8 shadow-depth-3 space-y-6 backdrop-blur-xl">
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-950/60 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-depth-1">
-          <KeyRound className="w-6 h-6" />
+        <div className="flex justify-center mb-3">
+          <div className="p-3 rounded-2xl bg-surface-1/90 border border-brand-glow/30 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+            <img
+              src="/logo.png"
+              alt="E-Cell Logo"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-[0_0_12px_rgba(59,130,246,0.7)]"
+            />
+          </div>
         </div>
         <h2 className="text-2xl font-black font-heading tracking-tight text-text-primary">
           Update Temporary Password

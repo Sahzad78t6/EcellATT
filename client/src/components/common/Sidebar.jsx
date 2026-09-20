@@ -61,10 +61,12 @@ export const Sidebar = ({ className = '', onItemClick = null }) => {
     >
       <div className="space-y-6">
         {/* Portal Branding / Role Badge */}
-        <div className="px-3 py-2 rounded-2xl bg-surface-2/60 border border-border-subtle flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-primary to-brand-deep flex items-center justify-center text-brand-ice font-bold text-xs shadow-sm">
-            <Sparkles className="w-4 h-4 text-brand-cyan" />
-          </div>
+        <div className="px-3.5 py-3 rounded-2xl bg-surface-2/80 border border-border-subtle flex items-center gap-3.5 shadow-depth-1">
+          <img
+            src="/logo.png"
+            alt="E-Cell Logo"
+            className="w-11 h-11 object-contain drop-shadow-[0_0_10px_rgba(59,130,246,0.6)] shrink-0"
+          />
           <div className="min-w-0">
             <p className="text-xs font-bold font-heading text-text-primary truncate">
               {role === 'ADMIN' ? 'Admin Portal' : role === 'MEMBER' ? 'Member Portal' : 'Head Portal'}

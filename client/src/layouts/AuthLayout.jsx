@@ -10,15 +10,17 @@ export const AuthLayout = () => {
 
       {/* Top Header */}
       <header className="p-4 sm:p-6 flex items-center justify-between z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-bright to-brand-deep flex items-center justify-center text-white font-black text-base shadow-[0_0_16px_rgba(59,130,246,0.6)] border border-brand-glow/40">
-            E
-          </div>
+        <div className="flex items-center gap-3.5">
+          <img
+            src="/logo.png"
+            alt="E-Cell Logo"
+            className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-[0_0_12px_rgba(59,130,246,0.7)]"
+          />
           <div>
-            <span className="font-black font-heading text-base tracking-tight text-text-primary">
+            <span className="font-black font-heading text-base sm:text-lg tracking-tight text-text-primary">
               E-CELL
             </span>{' '}
-            <span className="text-xs text-brand-glow font-bold uppercase tracking-wider bg-brand-deep/50 px-2 py-0.5 rounded-md border border-brand-bright/30">
+            <span className="text-[11px] sm:text-xs text-brand-glow font-bold uppercase tracking-wider bg-brand-deep/50 px-2 py-0.5 rounded-md border border-brand-bright/30">
               Attendance Portal
             </span>
           </div>

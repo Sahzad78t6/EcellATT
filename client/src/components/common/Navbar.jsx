@@ -31,12 +31,14 @@ export const Navbar = ({ onMenuClick }) => {
             <Menu className="w-5 h-5" />
           </button>
         )}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-bright to-brand-deep flex items-center justify-center text-white font-black text-sm shadow-[0_0_12px_rgba(59,130,246,0.5)] border border-brand-glow/40">
-            E
-          </div>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="E-Cell Logo"
+            className="w-10 h-10 sm:w-11 sm:h-11 object-contain drop-shadow-[0_0_10px_rgba(59,130,246,0.6)] shrink-0"
+          />
           <div className="hidden sm:block">
-            <span className="font-black font-heading text-sm tracking-tight text-text-primary">
+            <span className="font-black font-heading text-sm sm:text-base tracking-tight text-text-primary">
               E-CELL
             </span>{' '}
             <span className="text-[10px] text-brand-glow font-bold uppercase tracking-wider bg-brand-deep/50 px-1.5 py-0.5 rounded-md border border-brand-bright/30">

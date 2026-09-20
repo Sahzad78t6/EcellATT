@@ -47,26 +47,22 @@ export const LoginPage = () => {
       {/* 3D Floating Hero Showcase Panels (Desktop & Tablet) */}
       <div className="relative mb-8 text-center" style={{ perspective: '1000px' }}>
         {/* Floating Mini 3D Badge 1 - Left */}
-        <div
-          className="hidden sm:flex absolute -left-6 -top-5 items-center gap-2 px-3 py-1.5 rounded-xl surface-card border border-brand-bright/40 shadow-depth-2 animate-float-slow text-[11px] font-bold text-brand-ice"
-          style={{ transform: 'translateZ(30px) rotate(-6deg)' }}
-          aria-hidden="true"
-        >
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Realtime Attendance</span>
-        </div>
+
 
         {/* Floating Mini 3D Badge 2 - Right */}
-        <div
-          className="hidden sm:flex absolute -right-6 -bottom-3 items-center gap-2 px-3 py-1.5 rounded-xl surface-card border border-brand-bright/40 shadow-depth-2 animate-float-reverse text-[11px] font-bold text-brand-ice"
-          style={{ transform: 'translateZ(20px) rotate(5deg)' }}
-          aria-hidden="true"
-        >
-          <TrendingUp className="w-3.5 h-3.5 text-brand-cyan" />
-          <span>98.5% Accuracy</span>
+
+
+        <div className="flex justify-center mb-5">
+          <div className="p-3.5 rounded-3xl bg-surface-1/90 border border-brand-glow/30 shadow-[0_0_30px_rgba(59,130,246,0.35)] backdrop-blur-xl transition-transform hover:scale-105 duration-300">
+            <img
+              src="/logo.png"
+              alt="E-Cell Logo"
+              className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain drop-shadow-[0_0_16px_rgba(59,130,246,0.8)]"
+            />
+          </div>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-deep/40 border border-brand-bright/30 text-brand-glow text-xs font-bold mb-3 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-deep/40 border border-brand-bright/30 text-brand-glow text-xs font-bold mb-3 shadow-sm">
           <ShieldCheck className="w-3.5 h-3.5 text-brand-cyan" />
           <span>Official Portal Access • 2026-2027</span>
         </div>

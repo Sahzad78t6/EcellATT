@@ -46,10 +46,12 @@ export const MobileNav = ({ isOpen, onClose }) => {
           {/* Drawer Container */}
           <div className="relative flex-1 flex flex-col max-w-xs w-full glass-sidebar z-50 animate-in slide-in-from-left duration-200 shadow-depth-3 border-r border-border-bright">
             <div className="p-4 border-b border-border-subtle flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-bright to-brand-deep flex items-center justify-center text-white font-black text-xs border border-brand-glow/40 shadow-sm">
-                  E
-                </div>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo.png"
+                  alt="E-Cell Logo"
+                  className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
+                />
                 <span className="font-bold font-heading text-sm text-text-primary">E-Cell Portal</span>
               </div>
               <button
