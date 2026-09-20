@@ -43,9 +43,7 @@ export const HeadAnalyticsPage = () => {
             onChange={(e) => setSession(e.target.value)}
             className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none text-slate-900 dark:text-slate-100"
           >
-            <option value="2026-2027">2026-2027 (Current)</option>
-            <option value="2027-2028">2027-2028</option>
-            <option value="2025-2026">2025-2026</option>
+            <option value="2026-2027">2026-2027</option>
           </select>
         </div>
       </div>
