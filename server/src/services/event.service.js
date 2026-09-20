@@ -4,7 +4,7 @@ import { Attendance } from '../models/Attendance.js';
 import { Settings } from '../models/Settings.js';
 import { alertService } from './alert.service.js';
 import { auditService } from './audit.service.js';
-import { EVENT_STATUS, ATTENDANCE_STATUS, ATTENDANCE_SOURCE, AUDIT_ACTIONS } from '../config/constants.js';
+import { EVENT_STATUS, ATTENDANCE_STATUS, ATTENDANCE_SOURCE, AUDIT_ACTIONS, ROLES } from '../config/constants.js';
 import { toUTCDate } from '../utils/dateUtils.js';
 
 class EventService {
@@ -262,6 +262,7 @@ class EventService {
   async finalizeEventAbsentsAndAlerts(event) {
     try {
       const memberQuery = {
+        role: ROLES.MEMBER,
         isActive: true,
         joinedAt: { $lte: event.date || event.startTime }
       };

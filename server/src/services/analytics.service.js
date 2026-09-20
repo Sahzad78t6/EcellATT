@@ -24,7 +24,7 @@ class AnalyticsService {
     const settings = await Settings.getSettings();
 
     const [totalMembers, totalEvents, closedEvents, upcomingEvents] = await Promise.all([
-      User.countDocuments({ role: { $ne: ROLES.ADMIN }, isActive: true }),
+      User.countDocuments({ role: ROLES.MEMBER, isActive: true }),
       Event.countDocuments({ session }),
       Event.find({ session, status: EVENT_STATUS.CLOSED }),
       Event.find({
@@ -184,7 +184,7 @@ class AnalyticsService {
 
     const results = await Promise.all(
       verticals.map(async (v) => {
-        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true });
+        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true, role: ROLES.MEMBER });
         const vData = vStatsMap.get(v._id.toString()) || { present: 0, absent: 0 };
         const total = vData.present + vData.absent;
         const averageAttendance = total > 0 ? Number(((vData.present / total) * 100).toFixed(1)) : 0;
@@ -217,7 +217,7 @@ class AnalyticsService {
    */
   async getMemberLeaderboard(sessionFilter, verticalId = null) {
     const session = await this.getEffectiveSession(sessionFilter);
-    const memberQuery = { isActive: true, role: { $ne: ROLES.ADMIN } };
+    const memberQuery = { isActive: true, role: ROLES.MEMBER };
     if (verticalId) memberQuery.vertical = verticalId;
 
     const members = await User.find(memberQuery).populate('vertical', 'name slug');
@@ -316,7 +316,7 @@ class AnalyticsService {
 
     const [vertical, members, events] = await Promise.all([
       Vertical.findById(verticalId),
-      User.find({ vertical: verticalId, isActive: true }).sort({ name: 1 }),
+      User.find({ vertical: verticalId, isActive: true, role: ROLES.MEMBER }).sort({ name: 1 }),
       Event.find({
         session,
         status: EVENT_STATUS.CLOSED,
@@ -389,7 +389,7 @@ class AnalyticsService {
     const session = await this.getEffectiveSession(sessionFilter);
     const settings = await Settings.getSettings();
 
-    const members = await User.find({ isActive: true, role: { $ne: ROLES.ADMIN } }).populate('vertical', 'name slug');
+    const members = await User.find({ isActive: true, role: ROLES.MEMBER }).populate('vertical', 'name slug');
     const closedEvents = await Event.find({ session, status: EVENT_STATUS.CLOSED });
     const attendanceRecords = await Attendance.find({
       event: { $in: closedEvents.map((e) => e._id) },
@@ -450,7 +450,7 @@ class AnalyticsService {
 
     const [vertical, memberCount, closedEvents, upcomingEvents, members] = await Promise.all([
       Vertical.findById(verticalId).populate('secretary', 'name email').populate('leads', 'name email'),
-      User.countDocuments({ vertical: verticalId, isActive: true }),
+      User.countDocuments({ vertical: verticalId, isActive: true, role: ROLES.MEMBER }),
       Event.find({
         session,
         status: EVENT_STATUS.CLOSED,
@@ -461,7 +461,7 @@ class AnalyticsService {
         status: { $in: [EVENT_STATUS.SCHEDULED, EVENT_STATUS.OPEN] },
         $or: [{ targetVerticals: { $size: 0 } }, { targetVerticals: vObjectId }]
       }).sort({ startTime: 1 }).limit(5),
-      User.find({ vertical: verticalId, isActive: true }).sort({ name: 1 })
+      User.find({ vertical: verticalId, isActive: true, role: ROLES.MEMBER }).sort({ name: 1 })
     ]);
 
     if (!vertical) throw new Error('Vertical not found');

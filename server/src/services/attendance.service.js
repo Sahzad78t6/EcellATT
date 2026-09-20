@@ -41,6 +41,7 @@ class AttendanceService {
     }
 
     const memberQuery = {
+      role: ROLES.MEMBER,
       isActive: true,
       joinedAt: { $lte: event.date || event.startTime }
     };
@@ -127,7 +128,7 @@ class AttendanceService {
     }
 
     const memberIds = records.map((r) => r.memberId);
-    const members = await User.find({ _id: { $in: memberIds } });
+    const members = await User.find({ _id: { $in: memberIds }, role: ROLES.MEMBER });
     const memberMap = new Map();
     members.forEach((m) => memberMap.set(m._id.toString(), m));
 
@@ -143,7 +144,17 @@ class AttendanceService {
       }
     }
 
-    const bulkOps = records.map((rec) => {
+    const validRecords = records.filter((rec) => memberMap.has(rec.memberId));
+    if (validRecords.length === 0) {
+      return {
+        message: 'No member attendance records to update',
+        matchedCount: 0,
+        modifiedCount: 0,
+        upsertedCount: 0
+      };
+    }
+
+    const bulkOps = validRecords.map((rec) => {
       const memberDoc = memberMap.get(rec.memberId);
       const vId = memberDoc ? memberDoc.vertical : enforcedVerticalId;
 

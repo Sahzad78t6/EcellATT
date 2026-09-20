@@ -15,7 +15,7 @@ class ReportService {
     const settings = await Settings.getSettings();
     const activeSession = session || settings.currentSession;
 
-    const userQuery = { isActive: true, role: { $ne: ROLES.ADMIN } };
+    const userQuery = { isActive: true, role: ROLES.MEMBER };
     if (verticalId) userQuery.vertical = verticalId;
 
     const members = await User.find(userQuery).populate('vertical', 'name slug').sort({ name: 1 });
@@ -155,7 +155,7 @@ class ReportService {
 
     const results = await Promise.all(
       verticals.map(async (v) => {
-        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true });
+        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true, role: ROLES.MEMBER });
         const counts = vStatsMap.get(v._id.toString()) || { present: 0, absent: 0 };
         const total = counts.present + counts.absent;
         const avgPercentage = total > 0 ? Number(((counts.present / total) * 100).toFixed(1)) : 0;

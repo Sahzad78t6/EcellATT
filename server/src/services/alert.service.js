@@ -5,7 +5,7 @@ import { Settings } from '../models/Settings.js';
 import { EmailLog } from '../models/EmailLog.js';
 import { emailService } from './email.service.js';
 import { generateLowAttendanceEmail } from '../templates/lowAttendanceEmail.js';
-import { EMAIL_TYPES, EMAIL_STATUS, EVENT_STATUS, ATTENDANCE_STATUS } from '../config/constants.js';
+import { EMAIL_TYPES, EMAIL_STATUS, EVENT_STATUS, ATTENDANCE_STATUS, ROLES } from '../config/constants.js';
 import { ENV } from '../config/env.js';
 
 class AlertService {
@@ -77,7 +77,7 @@ class AlertService {
       }
 
       // Identify targeted members
-      const memberQuery = { isActive: true };
+      const memberQuery = { isActive: true, role: ROLES.MEMBER };
       if (event.targetVerticals && event.targetVerticals.length > 0) {
         memberQuery.vertical = { $in: event.targetVerticals };
       }
@@ -182,7 +182,7 @@ class AlertService {
    */
   async sendAlertsToAllAtRiskMembers({ forceCooldown = false } = {}) {
     const settings = await Settings.getSettings();
-    const members = await User.find({ isActive: true });
+    const members = await User.find({ isActive: true, role: ROLES.MEMBER });
 
     let sent = 0;
     let skipped = 0;

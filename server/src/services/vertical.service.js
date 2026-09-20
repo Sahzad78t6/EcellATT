@@ -15,7 +15,7 @@ class VerticalService {
 
     const results = await Promise.all(
       verticals.map(async (v) => {
-        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true });
+        const memberCount = await User.countDocuments({ vertical: v._id, isActive: true, role: ROLES.MEMBER });
         return {
           ...v.toObject(),
           memberCount
@@ -36,7 +36,7 @@ class VerticalService {
       throw new Error('Vertical not found');
     }
 
-    const memberCount = await User.countDocuments({ vertical: vertical._id, isActive: true });
+    const memberCount = await User.countDocuments({ vertical: vertical._id, isActive: true, role: ROLES.MEMBER });
     return {
       ...vertical.toObject(),
       memberCount

@@ -14,8 +14,11 @@ export const AttendanceChecklist = ({
 
   useEffect(() => {
     if (roster && roster.length > 0) {
+      const memberOnlyRoster = roster.filter(
+        (r) => !r.member?.role || r.member.role === 'MEMBER'
+      );
       setRecords(
-        roster.map((r) => ({
+        memberOnlyRoster.map((r) => ({
           memberId: r.member._id,
           name: r.member.name,
           studentId: r.member.memberId,
@@ -25,6 +28,8 @@ export const AttendanceChecklist = ({
           remarks: r.remarks || ''
         }))
       );
+    } else {
+      setRecords([]);
     }
   }, [roster]);
 

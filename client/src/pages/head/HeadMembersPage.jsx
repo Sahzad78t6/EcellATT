@@ -12,13 +12,15 @@ export const HeadMembersPage = () => {
     queryKey: ['vertical-summary'],
     queryFn: () => analyticsApi.getVerticalSummary()
   });
-  const memberSummary = summaryRes?.data?.memberSummary || [];
+  const memberSummary = (summaryRes?.data?.memberSummary || []).filter(
+    (m) => !m.role || m.role === 'MEMBER'
+  );
 
   const filtered = memberSummary.filter(
     (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.memberId.toLowerCase().includes(search.toLowerCase()) ||
-      m.email.toLowerCase().includes(search.toLowerCase())
+      m.name?.toLowerCase().includes(search.toLowerCase()) ||
+      m.memberId?.toLowerCase().includes(search.toLowerCase()) ||
+      m.email?.toLowerCase().includes(search.toLowerCase())
   );
 
   const columns = [

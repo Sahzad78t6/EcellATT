@@ -385,3 +385,87 @@ test('5. Event Close Automation: Auto-marks absent for unmarked members and eval
   assert.strictEqual(autoRecord.status, ATTENDANCE_STATUS.ABSENT);
   assert.strictEqual(autoRecord.source, ATTENDANCE_SOURCE.AUTO);
 });
+
+test('6. Leadership Exclusion: Leads, Secretaries, and Admins are excluded from attendance roster and auto-absents', async () => {
+  const salt = await bcrypt.genSalt(10);
+  const pwd = await bcrypt.hash('Password@123', salt);
+
+  const vert = await Vertical.create({ name: 'Creative Designing', slug: 'creative-designing' });
+
+  // 1 Lead, 1 Secretary, 1 Admin, 2 Members
+  const lead = await User.create({
+    name: 'Design Lead',
+    email: 'lead.design@ecell.org',
+    memberId: 'LEADDES01',
+    passwordHash: pwd,
+    role: ROLES.LEAD,
+    vertical: vert._id
+  });
+
+  const sec = await User.create({
+    name: 'Design Secretary',
+    email: 'sec.design@ecell.org',
+    memberId: 'SECDES01',
+    passwordHash: pwd,
+    role: ROLES.SECRETARY,
+    vertical: vert._id
+  });
+
+  const member1 = await User.create({
+    name: 'Member First',
+    email: 'mem1@gmail.com',
+    memberId: 'ECELL_001',
+    passwordHash: pwd,
+    role: ROLES.MEMBER,
+    vertical: vert._id
+  });
+
+  const member2 = await User.create({
+    name: 'Member Second',
+    email: 'mem2@gmail.com',
+    memberId: 'ECELL_002',
+    passwordHash: pwd,
+    role: ROLES.MEMBER,
+    vertical: vert._id
+  });
+
+  const event = await Event.create({
+    name: 'Design Sprint',
+    date: new Date(),
+    startTime: new Date(Date.now() - 3600000),
+    endTime: new Date(Date.now() + 3600000),
+    status: EVENT_STATUS.OPEN,
+    targetVerticals: [vert._id],
+    session: '2024-2025',
+    createdBy: lead._id
+  });
+
+  // Verify getEventRoster returns ONLY regular members
+  const rosterResult = await attendanceService.getEventRoster(event._id, { verticalId: vert._id.toString(), user: lead });
+  assert.strictEqual(rosterResult.totalMembers, 2);
+  const rosterMemberEmails = rosterResult.roster.map((r) => r.member.email);
+  assert.ok(rosterMemberEmails.includes('mem1@gmail.com'));
+  assert.ok(rosterMemberEmails.includes('mem2@gmail.com'));
+  assert.ok(!rosterMemberEmails.includes('lead.design@ecell.org'), 'Lead should not be in attendance roster');
+  assert.ok(!rosterMemberEmails.includes('sec.design@ecell.org'), 'Secretary should not be in attendance roster');
+
+  // Mark member1 PRESENT and close event
+  await attendanceService.markAttendance(
+    event._id,
+    { records: [{ memberId: member1._id.toString(), status: ATTENDANCE_STATUS.PRESENT }] },
+    lead
+  );
+
+  await eventService.closeEvent(event._id, lead);
+
+  // Auto-absent records must only exist for member2, NEVER for lead or secretary
+  const leadAtt = await Attendance.findOne({ event: event._id, member: lead._id });
+  const secAtt = await Attendance.findOne({ event: event._id, member: sec._id });
+  const mem2Att = await Attendance.findOne({ event: event._id, member: member2._id });
+
+  assert.strictEqual(leadAtt, null, 'No attendance record should exist for Lead');
+  assert.strictEqual(secAtt, null, 'No attendance record should exist for Secretary');
+  assert.ok(mem2Att, 'Auto-absent record should exist for Member 2');
+  assert.strictEqual(mem2Att.status, ATTENDANCE_STATUS.ABSENT);
+});
+
